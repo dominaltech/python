@@ -1,8 +1,4 @@
 {
-  "name": "pybuddy",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "build": "echo 'Static site - no build needed'"
-  }
+  "name": "dominalpython",
+  "version": "1.0.0"
 }
