@@ -1,7 +1,6 @@
 {
-  "name": "pybuddy-functions",
+  "name": "dominal-ai-functions",
   "version": "1.0.0",
-  "description": "Netlify Functions for pyBuddy AI",
   "dependencies": {
     "node-fetch": "^2.6.7"
   }
