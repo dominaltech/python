@@ -1,1 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Python – Interactive Playground</title>
+    <!-- Pyodide CDN -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.27.0/full/pyodide.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <style>
+        /* DARK MODERN CODING THEME - Professional Compiler Style */
+        :root {
+            /* Color Palette */
+            --primary-bg: #0d1117;
+            --secondary-bg: #161b22;
+            --tertiary-bg: #1a1a1a;
+            --card-bg: #21262d;
+            --border-color: #30363d;
+            --text-primary: #e8e8e8;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent-green: #4CAF50;
+            --accent-green-hover: #45a049;
+            --accent-blue: #58a6ff;
+            --accent-yellow: #f9c74f;
+            --accent-red: #ff6b6b;
+            --console-green: #4ade80;
+            --console-yellow: #fbbf24;
+            --console-red: #f87171;
+            --console-blue: #60a5fa;
+
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            background: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: var(--spacing-xl) var(--spacing-md);
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* MAIN CONTAINER */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-md);
+        }
+
+        /* TOP NAVIGATION BAR - Shows Back button when in topic */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all var(--transition-normal);
+        }
+
+        .top-nav.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: 0.75rem 1.25rem;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-family: inherit;
+        }
+
+        .btn-back:hover {
+            background: #4299e1;
+            transform: translateX(-2px);
+        }
+
+        .current-topic {
+            color: var(--accent-green);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* NAVIGATION BUTTONS - Only visible initially */
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .btn-concept {
+            padding: 1.25rem 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-concept::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-concept:hover::before {
+            left: 100%;
+        }
+
+        .btn-concept:hover {
+            border-color: var(--accent-green);
+            background: var(--secondary-bg);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-concept.active {
+            border-color: var(--accent-green);
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .btn-concept i {
+            font-size: 2rem;
+        }
+
+        /* CONTENT PAGES */
+        .content-wrapper {
+            min-height: 60vh;
+        }
+
+        .content-page {
+            display: none;
+            animation: slideIn 0.4s ease;
+        }
+
+        .content-page.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* TOPIC CONTENT */
+        .topic-content {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .topic-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .topic-header h2 {
+            font-size: 2rem;
+            color: var(--accent-green);
+        }
+
+        .topic-definition {
+            background: var(--card-bg);
+            border-left: 4px solid var(--accent-blue);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            border-radius: var(--radius-sm);
+        }
+
+        /* CODE BLOCKS - READ ONLY */
+        .code-block {
+            background: var(--tertiary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: var(--spacing-lg) 0;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            position: relative;
+            user-select: text;
+            cursor: default;
+        }
+
+        .code-block::before {
+            content: '→ Copy Example';
+            position: absolute;
+            top: var(--spacing-sm);
+            right: var(--spacing-sm);
+            background: var(--accent-green);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            cursor: pointer;
+        }
+
+        .code-block:hover::before {
+            opacity: 1;
+        }
+
+        .example-group {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .example-group h3 {
+            color: var(--accent-blue);
+            margin-bottom: var(--spacing-md);
+            font-size: 1.3rem;
+        }
+
+        /* COMPILER SECTION - FIXED AT BOTTOM */
+        .compiler-section {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-lg);
+            margin-top: var(--spacing-xl);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .control-panel {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-family: inherit;
+        }
+
+        .btn-run {
+            background: linear-gradient(135deg, var(--accent-green), #66bb6a);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-run:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-run:disabled {
+            background: var(--border-color);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        /* EDITOR */
+        .editor-wrapper {
+            display: flex;
+            background: var(--tertiary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .line-numbers {
+            background: var(--card-bg);
+            color: var(--text-muted);
+            padding: var(--spacing-md);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            user-select: none;
+            text-align: right;
+            min-width: 60px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .code-editor {
+            flex: 1;
+            background: var(--tertiary-bg);
+            color: var(--text-primary);
+            border: none;
+            outline: none;
+            padding: var(--spacing-lg);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            resize: none;
+            min-height: 300px;
+        }
+
+        .code-editor::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* OUTPUT CONSOLE */
+        .output-console {
+            background: var(--tertiary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .output-line.error { color: var(--console-red); }
+        .output-line.success { color: var(--console-green); }
+        .output-line.warning { color: var(--console-yellow); }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .nav-buttons { grid-template-columns: 1fr; }
+            .container { padding: var(--spacing-sm); }
+            .control-panel { flex-direction: column; }
+            .btn-run { width: 100%; }
+            .topic-header { flex-direction: column; align-items: flex-start; }
+            .top-nav { flex-direction: column; align-items: stretch; }
+            .btn-back { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <h1>Learn Python – Interactive Playground</h1>
+        <p>Master Python concepts with interactive examples and live compiler</p>
+    </header>
+
+    <div class="container">
+        <!-- TOP NAVIGATION BAR (Back button appears here) -->
+        <div class="top-nav" id="top-nav">
+            <button id="back-btn" class="btn-back">
+                <span>⬅</span>
+                <span>Back to Topics</span>
+            </button>
+            <div class="current-topic" id="current-topic">Variables</div>
+        </div>
+
+        <!-- NAVIGATION BUTTONS -->
+        <div class="nav-buttons" id="nav-buttons">
+            <button class="btn-concept" data-topic="variables">
+                <i>📊</i>
+                <span>Variables</span>
+            </button>
+            <button class="btn-concept" data-topic="input-output">
+                <i>📥</i>
+                <span>Input / Output</span>
+            </button>
+            <button class="btn-concept" data-topic="operators">
+                <i>➕</i>
+                <span>Operators</span>
+            </button>
+            <button class="btn-concept" data-topic="datatypes">
+                <i>🔤</i>
+                <span>Data Types</span>
+            </button>
+            <button class="btn-concept" data-topic="control-flow">
+                <i>🔄</i>
+                <span>Control Flow</span>
+            </button>
+            <button class="btn-concept" data-topic="functions">
+                <i>⚙</i>
+                <span>Functions</span>
+            </button>
+            <button class="btn-concept" data-topic="modularity">
+                <i>📦</i>
+                <span>Modularity</span>
+            </button>
+            <button class="btn-concept" data-topic="oop">
+                <i>🏗</i>
+                <span>OOP</span>
+            </button>
+        </div>
+
+        <!-- CONTENT WRAPPER -->
+        <div class="content-wrapper">
+            <!-- VARIABLES CONTENT -->
+            <div id="variables" class="content-page topic-content">
+                <div class="topic-header">
+                    <h2><i>📊</i> Variables</h2>
+                </div>
+                <div class="topic-definition">
+                    <h3>🎯 What are Variables?</h3>
+                    <p><strong>Variables</strong> are containers for storing data values. Python does not require explicit type declarations; the type is inferred from the assigned value. Variables are case-sensitive and must start with a letter or underscore. [web:23]</p>
+                </div>
+
+                <div class="example-group">
+                    <h3>1. Local Variables</h3>
+                    <p>Local variables are defined inside a function and can only be accessed within that function.</p>
+                    <div class="code-block" data-copy="# Local Variable Example 1
+def greet():
+    name = 'Alice'  # Local variable
+    print(f'Hello, {name}!')
+
+greet()">
+def greet():
+    name = "Alice"  # Local variable
+    print(f"Hello, {name}!")
+
+
+greet()</div>
+
+                    <div class="code-block" data-copy="# Local Variable Example 2
+def calculate_area(length, width):
+    area = length * width  # Local variable
+    return area
+
+result = calculate_area(5, 3)
+print(result)">
+def calculate_area(length, width):
+    area = length * width  # Local variable
+    return area
+
+
+result = calculate_area(5, 3)
+print(result)</div>
+                </div>
+
+                <div class="example-group">
+                    <h3>2. Global Variables</h3>
+                    <p>Global variables are defined outside all functions and are accessible everywhere in the file; use the <code>global</code> keyword to modify them inside a function. [web:23]</p>
+                    <div class="code-block" data-copy="# Global Variable Example 1
+counter = 0  # Global variable
+
+def increment():
+    global counter
+    counter += 1
+    print(f'Counter: {counter}')
+
+increment()
+increment()">
+counter = 0  # Global variable
+
+
+def increment():
+    global counter
+    counter += 1
+    print(f"Counter: {counter}")
+
+
+increment()
+increment()</div>
+
+                    <div class="code-block" data-copy="# Global Variable Example 2
+PI = 3.14159  # Global constant
+
+def circle_area(radius):
+    return PI * radius * radius
+
+print(circle_area(5))">
+PI = 3.14159  # Global constant
+
+
+def circle_area(radius):
+    return PI * radius * radius
+
+
+print(circle_area(5))</div>
+                </div>
+
+                <div class="example-group">
+                    <h3>3. Instance Variables</h3>
+                    <p>Instance variables belong to a specific object and are usually defined in the <code>_init_</code> constructor using <code>self</code>. [web:24]</p>
+                    <div class="code-block" data-copy="# Instance Variable Example 1
+class Student:
+    def _init_(self, name, age):
+        self.name = name  # Instance variable
+        self.age = age    # Instance variable
+
+student1 = Student('Bob', 20)
+print(student1.name)">
+class Student:
+    def _init_(self, name, age):
+        self.name = name  # Instance variable
+        self.age = age    # Instance variable
+
+
+student1 = Student("Bob", 20)
+print(student1.name)</div>
+
+                    <div class="code-block" data-copy="# Instance Variable Example 2
+class Car:
+    def _init_(self, brand, model):
+        self.brand = brand
+        self.model = model
+        self.speed = 0
+
+car = Car('Toyota', 'Camry')
+print(f'{car.brand} {car.model}')">
+class Car:
+    def _init_(self, brand, model):
+        self.brand = brand
+        self.model = model
+        self.speed = 0
+
+
+car = Car("Toyota", "Camry")
+print(f"{car.brand} {car.model}")</div>
+                </div>
+
+                <div class="example-group">
+                    <h3>4. Class Variables</h3>
+                    <p>Class variables are shared across all instances of a class and are defined directly inside the class body. [web:24]</p>
+                    <div class="code-block" data-copy="# Class Variable Example 1
+class BankAccount:
+    interest_rate = 0.05  # Class variable
+
+    def _init_(self, balance):
+        self.balance = balance
+
+acc1 = BankAccount(1000)
+acc2 = BankAccount(2000)
+print(BankAccount.interest_rate)">
+class BankAccount:
+    interest_rate = 0.05  # Class variable
+
+    def _init_(self, balance):
+        self.balance = balance
+
+
+acc1 = BankAccount(1000)
+acc2 = BankAccount(2000)
+print(BankAccount.interest_rate)</div>
+
+                    <div class="code-block" data-copy="# Class Variable Example 2
+class Circle:
+    pi = 3.14159  # Class variable
+
+    def _init_(self, radius):
+        self.radius = radius
+
+c1 = Circle(5)
+c2 = Circle(10)
+print(Circle.pi)">
+class Circle:
+    pi = 3.14159  # Class variable
+
+    def _init_(self, radius):
+        self.radius = radius
+
+
+c1 = Circle(5)
+c2 = Circle(10)
+print(Circle.pi)</div>
+                </div>
+            </div>
+
+            <!-- INPUT / OUTPUT CONTENT -->
+            <div id="input-output" class="content-page topic-content">
+                <div class="topic-header">
+                    <h2><i>📥</i> Input / Output</h2>
+                </div>
+                <div class="topic-definition">
+                    <h3>🎯 What is I/O?</h3>
+                    <p><code>print()</code> displays output to the console, while <code>input()</code> reads a line of text from the user as a string. Use f-strings for clean, formatted output. [web:39]</p>
+                </div>
+
+                <div class="example-group">
+                    <h3>1. Basic Output</h3>
+                    <p>Use <code>print()</code> to display values and expressions.</p>
+                    <div class="code-block" data-copy="# Basic output
+print('Hello, Python!')
+x = 10
+y = 20
+print('Sum =', x + y)">
+print("Hello, Python!")
+x = 10
+y = 20
+print("Sum =", x + y)</div>
+                </div>
+
+                <div class="example-group">
+                    <h3>2. Reading Input</h3>
+                    <p><code>input()</code> always returns a string; convert it to <code>int</code> or <code>float</code> when needed. [web:23]</p>
+                    <div class="code-block" data-copy="# Reading input
+name = input('Enter your name: ')
+age = int(input('Enter your age: '))
+print(f'Hello {name}, you are {age} years old!')">
+name = input("Enter your name: ")
+age = int(input("Enter your age: "))
+print(f"Hello {name}, you are {age} years old!")</div>
+                </div>
+            </div>
+
+            <!-- OPERATORS CONTENT -->
+            <div id="operators" class="content-page topic-content">
+                <div class="topic-header">
+                    <h2><i>➕</i> Operators</h2>
+                </div>
+                <div class="topic-definition">
+                    <h3>🎯 What are Operators?</h3>
+                    <p>Operators are symbols that perform operations on values and variables, such as arithmetic, comparison, logical, and assignment operations. [web:28]</p>
+                </div>
+
+                <div class="example-group">
+                    <h3>1. Arithmetic Operators</h3>
+                    <p>Arithmetic operators include <code>+</code>, <code>-</code>, <code></code>, <code>/</code>, <code>//</code>, <code>%</code>, and <code>*</code> for exponentiation. [web:36]</p>
+                    <div class="code-block" data-copy="# Arithmetic operators
+a = 7
+b = 3
+
+print(a + b)   # 10
+print(a - b)   # 4
+print(a * b)   # 21
+print(a / b)   # 2.333...
+print(a // b)  # 2
+print(a % b)   # 1
+print(a ** b)  # 343">
+a = 7
+b = 3
+
+print(a + b)   # 10
+print(a - b)   # 4
+print(a * b)   # 21
+print(a / b)   # 2.333...
+print(a // b)  # 2
+print(a % b)   # 1
+print(a ** b)  # 343</div>
+                </div>
+
+                <div class="example-group">
+                    <h3>2. Comparison and Logical</h3>
+                    <p>Comparison operators like <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code> return booleans and can be combined with logical operators <code>and</code>, <code>or</code>, <code>not</code>. [web:31]</p>
+                    <div class="code-block" data-copy="# Comparison and logical
+x = 10
+y = 5
+
+print(x > y)           # True
+print(x == y)          # False
+print(x != y)          # True
+print(x > 0 and y > 0) # True
+print(not (x < y))     # True">
+x = 10
+y = 5
+
+print(x > y)           # True
+print(x == y)          # False
+print(x != y)          # True
+print(x > 0 and y > 0) # True
+print(not (x < y))     # True</div>
+                </div>
+            </div>
+
+            <!-- DATA TYPES CONTENT -->
+            <div id="datatypes" class="content-page topic-content">
+                <div class="topic-header">
+                    <h2><i>🔤</i> Data Types</h2>
+                </div>
+                <div class="topic-definition">
+                    <h3>🎯 What are Data Types?</h3>
+                    <p>Data types describe what kind of values variables can hold, such as integers, floating-point numbers, strings, booleans, lists, tuples, sets, and dictionaries. [web:31]</p>
+                </div>
+
+                <div class="example-group">
+                    <h3>1. Basic Built‑in Types</h3>
+                    <p>Common scalar types are <code>int</code>, <code>float</code>, <code>str</code>, and <code>bool</code>. [web:23]</p>
+                    <div class="code-block" data-copy="# Basic data types
+age = 21           # int
+pi = 3.14          # float
+name = 'Python'    # str
+is_fun = True      # bool
+
+print(type(age))
+print(type(pi))
+print(type(name))
+print(type(is_fun))">
+age = 21           # int
+pi = 3.14          # float
+name = "Python"    # str
+is_fun = True      # bool
+
+print(type(age))
+print(type(pi))
+print(type(name))
+print(type(is_fun))</div>
+                </div>
+
+                <div class="example-group">
+                    <h3>2. Collection Types</h3>
+                    <p>Collections include <code>list</code>, <code>tuple</code>, <code>set</code>, and <code>dict</code> for grouping multiple values. [web:24]</p>
+                    <div class="code-block" data-copy="# Collection types
+nums = [1, 2, 3]                   # list
+point = (10, 20)                   # tuple
+unique = {1, 2, 2, 3}              # set
+student = {'name': 'Alice', 'age': 20}  # dict
+
+print(nums)
+print(point)
+print(unique)
+print(student['name'])">
+nums = [1, 2, 3]                   # list
+point = (10, 20)                   # tuple
+unique = {1, 2, 2, 3}              # set
+student = {"name": "Alice", "age": 20}  # dict
+
+print(nums)
+print(point)
+print(unique)
+print(student["name"])</div>
+                </div>
+            </div>
+
+            <!-- CONTROL FLOW CONTENT -->
+            <div id="control-flow" class="content-page topic-content">
+                <div class="topic-header">
+                    <h2><i>🔄</i> Control Flow</h2>
+                </div>
+                <div class="topic-definition">
+                    <h3>🎯 What is Control Flow?</h3>
+                    <p>Control flow statements decide which blocks of code run, using conditionals like <code>if</code> and loops like <code>for</code> and <code>while</code>. [web:31]</p>
+                </div>
+
+                <div class="example-group">
+                    <h3>1. If / Elif / Else</h3>
+                    <p>Use conditional statements to run code only when conditions are true.</p>
+                    <div class="code-block" data-copy="# If / elif / else
+score = 85
+
+if score >= 90:
+    print('Grade A')
+elif score >= 75:
+    print('Grade B')
+else:
+    print('Grade C')">
+score = 85
+
+if score >= 90:
+    print("Grade A")
+elif score >= 75:
+    print("Grade B")
+else:
+    print("Grade C")</div>
+                </div>
+
+                <div class="example-group">
+                    <h3>2. For and While Loops</h3>
+                    <p><code>for</code> loops iterate over sequences, and <code>while</code> loops repeat while a condition remains true. [web:39]</p>
+                    <div class="code-block" data-copy="# Loops
+# for loop
+for i in range(1, 4):
+    print('For loop:', i)
+
+# while loop
+count = 3
+while count > 0:
+    print('While loop:', count)
+    count -= 1">
+# for loop
+for i in range(1, 4):
+    print("For loop:", i)
+
+# while loop
+count = 3
+while count > 0:
+    print("While loop:", count)
+    count -= 1</div>
+                </div>
+            </div>
+
+            <!-- FUNCTIONS CONTENT -->
+            <div id="functions" class="content-page topic-content">
+                <div class="topic-header">
+                    <h2><i>⚙</i> Functions</h2>
+                </div>
+                <div class="topic-definition">
+                    <h3>🎯 What are Functions?</h3>
+                    <p>Functions are reusable blocks of code defined with <code>def</code> that can take parameters and return values using <code>return</code>. [web:21]</p>
+                </div>
+
+                <div class="example-group">
+                    <h3>1. Defining and Calling</h3>
+                    <p>A simple function takes arguments, performs work, and optionally returns a result.</p>
+                    <div class="code-block" data-copy="# Simple function
+def add(a, b):
+    result = a + b
+    return result
+
+print(add(3, 4))">
+def add(a, b):
+    result = a + b
+    return result
+
+
+print(add(3, 4))</div>
+                </div>
+
+                <div class="example-group">
+                    <h3>2. Default and Keyword Arguments</h3>
+                    <p>Parameters can have default values and can be passed by name using keyword arguments. [web:21]</p>
+                    <div class="code-block" data-copy="# Default and keyword args
+def greet(name, language='Python'):
+    print(f'Hello {name}, welcome to {language}!')
+
+greet('Alice')
+greet(name='Bob', language='JavaScript')">
+def greet(name, language="Python"):
+    print(f"Hello {name}, welcome to {language}!")
+
+
+greet("Alice")
+greet(name="Bob", language="JavaScript")</div>
+                </div>
+            </div>
+
+            <!-- MODULARITY CONTENT -->
+            <div id="modularity" class="content-page topic-content">
+                <div class="topic-header">
+                    <h2><i>📦</i> Modularity</h2>
+                </div>
+                <div class="topic-definition">
+                    <h3>🎯 What is Modularity?</h3>
+                    <p>Modularity means organizing code into separate files (modules) and packages so that code is easier to maintain and reuse. Python uses the <code>import</code> statement to load modules. [web:24]</p>
+                </div>
+
+                <div class="example-group">
+                    <h3>1. Importing Modules</h3>
+                    <p>Use <code>import</code> or <code>from ... import ...</code> to reuse code defined in other modules. [web:24]</p>
+                    <div class="code-block" data-copy="# Using built-in modules
+import math
+
+print(math.sqrt(16))
+print(math.pi)
+
+from math import factorial
+print(factorial(5))">
+import math
+
+print(math.sqrt(16))
+print(math.pi)
+
+from math import factorial
+print(factorial(5))</div>
+                </div>
+
+                <div class="example-group">
+                    <h3>2. Creating Your Own Module</h3>
+                    <p>Any <code>.py</code> file can act as a module and expose functions or variables to other files.</p>
+                    <div class="code-block" data-copy="# Imagine this is in helpers.py
+def square(x):
+    return x * x
+
+# In another file:
+# from helpers import square
+# print(square(5))">
+# In helpers.py
+def square(x):
+    return x * x
+
+# In another file:
+# from helpers import square
+# print(square(5))</div>
+                </div>
+            </div>
+
+            <!-- OOP CONTENT -->
+            <div id="oop" class="content-page topic-content">
+                <div class="topic-header">
+                    <h2><i>🏗</i> OOP</h2>
+                </div>
+                <div class="topic-definition">
+                    <h3>🎯 What is OOP?</h3>
+                    <p>Object-Oriented Programming (OOP) organizes code into classes and objects, using concepts like attributes, methods, and inheritance. [web:24]</p>
+                </div>
+
+                <div class="example-group">
+                    <h3>1. Classes and Objects</h3>
+                    <p>A class defines a blueprint, and objects are instances of that class.</p>
+                    <div class="code-block" data-copy="# Simple class and object
+class Person:
+    def _init_(self, name):
+        self.name = name
+
+    def say_hello(self):
+        print(f'Hello, I am {self.name}')
+
+p = Person('Alice')
+p.say_hello()">
+class Person:
+    def _init_(self, name):
+        self.name = name
+
+    def say_hello(self):
+        print(f"Hello, I am {self.name}")
+
+
+p = Person("Alice")
+p.say_hello()</div>
+                </div>
+
+                <div class="example-group">
+                    <h3>2. Inheritance</h3>
+                    <p>Inheritance lets a class reuse and extend behavior from another class. [web:24]</p>
+                    <div class="code-block" data-copy="# Inheritance example
+class Animal:
+    def speak(self):
+        print('Some sound')
+
+class Dog(Animal):
+    def speak(self):
+        print('Woof!')
+
+d = Dog()
+d.speak()">
+class Animal:
+    def speak(self):
+        print("Some sound")
+
+
+class Dog(Animal):
+    def speak(self):
+        print("Woof!")
+
+
+d = Dog()
+d.speak()</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PYTHON COMPILER - ALWAYS VISIBLE AT BOTTOM -->
+        <div class="compiler-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i>🧑‍💻</i>
+                    Python Compiler (Pyodide)
+                </div>
+                <div class="control-panel">
+                    <button id="run-btn" class="btn btn-run">▶ Run Code</button>
+                    <button id="clear-btn" class="btn btn-secondary">🗑 Clear</button>
+                </div>
+            </div>
+
+            <div class="editor-wrapper">
+                <div id="line-numbers" class="line-numbers">1</div>
+                <textarea id="code-editor" class="code-editor" placeholder="Write your Python code here and press Ctrl+Enter or click Run Code..."># Welcome to Python Playground!
+# Try these examples:
+
+# Variables
+name = 'Learner'
+age = 25
+print(f'Hello {name}, you are {age} years old!')
+
+# Functions
+def greet(person):
+    return f'Welcome to Python, {person}!'
+
+print(greet(name))</textarea>
+            </div>
+
+            <div class="section-header">
+                <div class="section-title">📤 Output Console</div>
+            </div>
+            <div id="output-console" class="output-console">
+Python compiler ready! 
+Write code above and click "Run Code" or press Ctrl+Enter
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === GLOBAL VARIABLES ===
+        let pyodide = null;
+        let pyodideReady = false;
+        const topicNames = {
+            'variables': 'Variables',
+            'input-output': 'Input / Output',
+            'operators': 'Operators',
+            'datatypes': 'Data Types',
+            'control-flow': 'Control Flow',
+            'functions': 'Functions',
+            'modularity': 'Modularity',
+            'oop': 'OOP'
+        };
+
+        // === DOM ELEMENTS ===
+        const navButtons = document.querySelectorAll('.btn-concept[data-topic]');
+        const contentPages = document.querySelectorAll('.content-page');
+        const codeEditor = document.getElementById('code-editor');
+        const lineNumbers = document.getElementById('line-numbers');
+        const outputConsole = document.getElementById('output-console');
+        const runBtn = document.getElementById('run-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const navContainer = document.getElementById('nav-buttons');
+        const topNav = document.getElementById('top-nav');
+        const backBtn = document.getElementById('back-btn');
+        const currentTopic = document.getElementById('current-topic');
+
+        // === BACK BUTTON FUNCTIONALITY ===
+        function showMainMenu() {
+            // Hide top nav and all content
+            topNav.classList.remove('visible');
+            contentPages.forEach(page => page.classList.remove('active'));
+
+            // Show navigation buttons
+            navContainer.style.display = 'grid';
+        }
+
+        function showTopic(topicId) {
+            const topicName = topicNames[topicId];
+
+            // Update current topic display
+            currentTopic.textContent = topicName;
+
+            // Show top nav with back button
+            topNav.classList.add('visible');
+
+            // Hide navigation buttons
+            navContainer.style.display = 'none';
+
+            // Show selected topic content
+            contentPages.forEach(page => page.classList.remove('active'));
+            const page = document.getElementById(topicId);
+            if (page) {
+                page.classList.add('active');
+            }
+        }
+
+        // === NAVIGATION HANDLER ===
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const topic = button.getAttribute('data-topic');
+                showTopic(topic);
+            });
+        });
+
+        // === BACK BUTTON HANDLER ===
+        backBtn.addEventListener('click', showMainMenu);
+
+        // === LINE NUMBERS UPDATE ===
+        function updateLineNumbers() {
+            const lines = codeEditor.value.split('\n');
+            let lineNumbersHTML = '';
+            for (let i = 1; i <= lines.length; i++) {
+                lineNumbersHTML += i + '<br>';
+            }
+            lineNumbers.innerHTML = lineNumbersHTML.slice(0, -4);
+        }
+
+        // === OUTPUT MANAGEMENT ===
+        function appendOutput(text, type = 'normal') {
+            const line = document.createElement('div');
+            line.className = output-line ${type};
+            line.textContent = text;
+            outputConsole.appendChild(line);
+            outputConsole.scrollTop = outputConsole.scrollHeight;
+        }
+
+        function clearOutput() {
+            outputConsole.innerHTML = '';
+        }
+
+        // === PYODIDE INITIALIZATION ===
+        async function initPyodide() {
+            try {
+                appendOutput('🔄 Loading Python runtime...', 'info');
+                pyodide = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.0/full/"
+                });
+
+                pyodide.setStdout({ batched: (msg) => appendOutput(msg) });
+                pyodide.setStderr({ batched: (msg) => appendOutput(msg, 'error') });
+
+                pyodideReady = true;
+                appendOutput('✅ Python ready! Happy coding! 🐍', 'success');
+            } catch (error) {
+                appendOutput(❌ Failed to load Python: ${error.message}, 'error');
+            }
+        }
+
+        // === RUN PYTHON CODE ===
+        async function runPythonCode() {
+            if (!pyodideReady) {
+                appendOutput('Python is still loading. Please wait...', 'warning');
+                return;
+            }
+
+            const code = codeEditor.value.trim();
+            if (!code) {
+                appendOutput('Please write some Python code first!', 'warning');
+                return;
+            }
+
+            clearOutput();
+            runBtn.disabled = true;
+            runBtn.innerHTML = '⏳ Running...';
+
+            try {
+                await pyodide.runPythonAsync(code);
+                appendOutput('✅ Code executed successfully!', 'success');
+            } catch (error) {
+                appendOutput(❌ Error: ${error.message}, 'error');
+            } finally {
+                runBtn.disabled = false;
+                runBtn.innerHTML = '▶ Run Code';
+            }
+        }
+
+        // === COPY CODE BLOCKS ===
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.code-block')) {
+                const codeBlock = e.target.closest('.code-block');
+                const code = codeBlock.getAttribute('data-copy') || codeBlock.textContent.trim();
+                navigator.clipboard.writeText(code).then(() => {
+                    const original = codeBlock.innerHTML;
+                    codeBlock.innerHTML = '✅ Copied to clipboard!';
+                    setTimeout(() => codeBlock.innerHTML = original, 2000);
+                });
+            }
+        });
+
+        // === EVENT LISTENERS ===
+        codeEditor.addEventListener('input', updateLineNumbers);
+        codeEditor.addEventListener('scroll', () => {
+            lineNumbers.scrollTop = codeEditor.scrollTop;
+        });
+
+        codeEditor.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                runPythonCode();
+            }
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = codeEditor.selectionStart;
+                const end = codeEditor.selectionEnd;
+                codeEditor.value = codeEditor.value.substring(0, start) + '    ' + codeEditor.value.substring(end);
+                codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
+                updateLineNumbers();
+            }
+        });
+
+        runBtn.addEventListener('click', runPythonCode);
+        clearBtn.addEventListener('click', () => {
+            codeEditor.value = '';
+            clearOutput();
+            updateLineNumbers();
+            appendOutput('🗑 Editor & console cleared!', 'info');
+        });
+
+        // === INITIALIZATION ===
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLineNumbers();
+            initPyodide();
+        });
+    </script>
+</body>
+</html>
