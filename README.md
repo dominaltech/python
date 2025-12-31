@@ -11,16 +11,12 @@ Built by **Team Dominal** (Yahya Mundewadi & Amir Rangrez)
 - Code explanations and optimizations
 - Mobile-friendly responsive design
 
-## Setup
-1. Clone this repository
-2. Get Groq API key from https://console.groq.com
-3. Deploy to Netlify
-4. Add GROQ_API_KEY environment variable in Netlify
+
 
 ## Technologies
-- Pyodide (Python in browser)
-- Groq API (Llama 3.3 70B model)
+- Python Compiler by Dominal Tech : https://python.dominal.in
+- AI Model : Llama 3.3 70B model
 - Netlify Functions (serverless backend)
 - Vanilla JavaScript & HTML5
-
+- Python for Backend
 © 2025 Team Dominal
