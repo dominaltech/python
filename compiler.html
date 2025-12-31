@@ -1273,7 +1273,7 @@ Ready to run Python code...
                 <div class="ai-chat-container" id="ai-chat">
                     <div class="ai-message assistant">
                         <strong>AI Assistant 🤖</strong>
-                        Hello! I'm your Python coding assistant powered by Groq AI. I can help you understand errors, explain code, suggest fixes, and optimize your Python programs. Ask me anything!
+                        Hello! I'm your Python coding assistant powered by Dominal AI. I can help you understand errors, explain code, suggest fixes, and optimize your Python programs. Ask me anything!
                     </div>
                 </div>
 
@@ -2048,8 +2048,8 @@ async function runPythonCode() {
         let lastCode = '';
 
         // Configuration - API key will be loaded from environment variable
-        const GROQ_API_KEY = window.ENV_GROQ_API_KEY || '';
-        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const AI_API_KEY = window.ENV_AI_API_KEY || '';
+        const AI_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
         const GROQ_MODEL = 'llama-3.3-70b-versatile'; // Fastest and most capable model
 
         // System prompt for the AI
@@ -2074,13 +2074,13 @@ IMPORTANT: Keep all responses very brief and to the point. No long explanations.
         // Initialize AI status
         function checkAIStatus() {
             const aiStatus = document.getElementById('ai-status');
-            if (GROQ_API_KEY) {
+            if (AI_API_KEY) {
                 aiStatus.innerHTML = '<span class="status-dot"></span> Ready';
                 aiStatus.classList.add('active');
             } else {
                 aiStatus.innerHTML = '<span class="status-dot"></span> API Key Missing';
                 aiStatus.style.color = 'var(--console-yellow)';
-                addAIMessage('⚠️ Groq API key not configured. AI features limited.', 'assistant');
+                addAIMessage('⚠️ AI API key not configured. AI features limited.', 'assistant');
             }
         }
 
@@ -2116,7 +2116,7 @@ IMPORTANT: Keep all responses very brief and to the point. No long explanations.
             }
         }
 
-        // Call Groq API via Netlify Function
+        // Call AI API via Netlify Function
         async function callGroqAPI(userMessage, includeCode = false) {
             try {
                 const messages = [
@@ -2166,7 +2166,7 @@ IMPORTANT: Keep all responses very brief and to the point. No long explanations.
                 return data.choices[0].message.content;
 
             } catch (error) {
-                console.error('Groq API Error:', error);
+                console.error('AI API Error:', error);
                 throw error;
             }
         }
