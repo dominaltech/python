@@ -1083,6 +1083,24 @@
                 margin-right: var(--spacing-sm);
             }
         }
+
+
+
+        /* Highlight current line in editor */
+.code-editor:focus {
+    outline: none;
+}
+
+.line-numbers::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1.6em;
+    background: rgba(0, 220, 130, 0.05);
+    pointer-events: none;
+}
+
     </style>
 </head>
 <body>
@@ -1160,6 +1178,7 @@
                         Python Editor
                     </h2>
                     <div class="editor-controls">
+                        <span id="cursor-position" class="char-count">Line 1, Col 1</span>
                         <button id="sample-btn" class="btn-small" title="Load Sample Code">
                             <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                                 <path d="M2 2h10v2H2V2zm0 4h10v2H2V6zm0 4h6v2H2v-2z"/>
@@ -1542,6 +1561,24 @@ async function initPyodide() {
     }
 }
 
+            function updateCursorPosition() {
+    const textarea = codeEditor;
+    const cursorPos = textarea.selectionStart;
+    const textBeforeCursor = textarea.value.substring(0, cursorPos);
+    const lines = textBeforeCursor.split('\n');
+    const currentLine = lines.length;
+    const currentCol = lines[lines.length - 1].length + 1;
+    
+    const posIndicator = document.getElementById('cursor-position');
+    if (posIndicator) {
+        posIndicator.textContent = `Line ${currentLine}, Col ${currentCol}`;
+    }
+}
+
+// Add to event listeners
+codeEditor.addEventListener('click', updateCursorPosition);
+codeEditor.addEventListener('keyup', updateCursorPosition);
+
 // ==========================================
 // CODE EXECUTION
 // ==========================================
@@ -1643,8 +1680,18 @@ function clearOutput() {
 
 function updateLineNumbers() {
     const lines = codeEditor.value.split('\n').length;
-    lineNumbers.textContent = Array.from({length: lines}, (_, i) => i + 1).join('\n');
+    const lineNumbersArray = [];
+    
+    for (let i = 1; i <= lines; i++) {
+        lineNumbersArray.push(i);
+    }
+    
+    lineNumbers.textContent = lineNumbersArray.join('\n');
+    
+    // Ensure line numbers match editor height
+    lineNumbers.style.minHeight = codeEditor.scrollHeight + 'px';
 }
+
 
 function updateCharCount() {
     const count = codeEditor.value.length;
@@ -1901,18 +1948,19 @@ async function autoSuggestFix(errorMessage) {
 // EVENT LISTENERS
 // ==========================================
 
-// Code Editor Events
+// Code Editor Events - Input handling
 codeEditor.addEventListener('input', () => {
     updateLineNumbers();
     updateCharCount();
 });
 
+// Code Editor Events - Scroll sync
 codeEditor.addEventListener('scroll', () => {
     lineNumbers.scrollTop = codeEditor.scrollTop;
 });
 
+// Code Editor Events - Tab key support
 codeEditor.addEventListener('keydown', (e) => {
-    // Tab key support
     if (e.key === 'Tab') {
         e.preventDefault();
         const start = codeEditor.selectionStart;
@@ -1922,7 +1970,51 @@ codeEditor.addEventListener('keydown', (e) => {
         updateLineNumbers();
         updateCharCount();
     }
+    
+    // Enter key - maintain indentation
+    if (e.key === 'Enter') {
+        const start = codeEditor.selectionStart;
+        const lineStart = codeEditor.value.lastIndexOf('\n', start - 1) + 1;
+        const line = codeEditor.value.substring(lineStart, start);
+        const indent = line.match(/^\s*/)[0];
+        
+        if (indent) {
+            e.preventDefault();
+            const end = codeEditor.selectionEnd;
+            codeEditor.value = codeEditor.value.substring(0, start) + '\n' + indent + codeEditor.value.substring(end);
+            codeEditor.selectionStart = codeEditor.selectionEnd = start + indent.length + 1;
+            updateLineNumbers();
+            updateCharCount();
+        }
+    }
 });
+            // Add to event listeners section
+codeEditor.addEventListener('keydown', (e) => {
+    const brackets = {
+        '(': ')',
+        '[': ']',
+        '{': '}',
+        '"': '"',
+        "'": "'"
+    };
+    
+    if (brackets[e.key]) {
+        e.preventDefault();
+        const start = codeEditor.selectionStart;
+        const end = codeEditor.selectionEnd;
+        const selectedText = codeEditor.value.substring(start, end);
+        
+        codeEditor.value = 
+            codeEditor.value.substring(0, start) + 
+            e.key + selectedText + brackets[e.key] + 
+            codeEditor.value.substring(end);
+        
+        codeEditor.selectionStart = codeEditor.selectionEnd = start + 1;
+        updateLineNumbers();
+        updateCharCount();
+    }
+});
+
 
 // Button Events
 runBtn.addEventListener('click', runPythonCode);
@@ -1944,6 +2036,22 @@ document.querySelectorAll('.sample-card').forEach(card => {
 samplesModal.addEventListener('click', (e) => {
     if (e.target === samplesModal) {
         closeSamplesModal();
+    }
+});
+
+// Keyboard shortcut - Ctrl/Cmd + Enter to run code
+codeEditor.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runPythonCode();
+    }
+});
+
+// Keyboard shortcut - Ctrl/Cmd + S to save
+document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveCode();
     }
 });
 
