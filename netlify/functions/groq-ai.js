@@ -1,5 +1,6 @@
+const https = require('https');
+
 exports.handler = async (event) => {
-  // CORS headers
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
@@ -7,68 +8,82 @@ exports.handler = async (event) => {
     'Access-Control-Allow-Methods': 'POST, OPTIONS'
   };
 
-  // Handle preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
   }
 
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers, body: 'Method Not Allowed' };
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
-  try {
-    // Check API key exists
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) {
-      console.error('GROQ_API_KEY missing');
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ error: 'API key not configured' })
-      };
-    }
+  return new Promise((resolve) => {
+    try {
+      const apiKey = process.env.GROQ_API_KEY;
+      
+      if (!apiKey) {
+        resolve({
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ error: 'API key not configured' })
+        });
+        return;
+      }
 
-    // Parse request
-    const { messages, model } = JSON.parse(event.body);
+      const requestBody = JSON.parse(event.body);
+      const { messages, model } = requestBody;
 
-    // Make API call using built-in fetch
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': Bearer ${apiKey},
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+      const postData = JSON.stringify({
         model: model || 'llama-3.3-70b-versatile',
         messages: messages,
         temperature: 0.3,
         max_tokens: 300
-      })
-    });
+      });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error('Groq error:', data);
-      return {
-        statusCode: response.status,
-        headers,
-        body: JSON.stringify({ error: data.error || 'API request failed' })
+      const options = {
+        hostname: 'api.groq.com',
+        port: 443,
+        path: '/openai/v1/chat/completions',
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
       };
+
+      const req = https.request(options, (res) => {
+        let data = '';
+
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+
+        res.on('end', () => {
+          resolve({
+            statusCode: res.statusCode,
+            headers,
+            body: data
+          });
+        });
+      });
+
+      req.on('error', (error) => {
+        resolve({
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ error: error.message })
+        });
+      });
+
+      req.write(postData);
+      req.end();
+
+    } catch (error) {
+      resolve({
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: error.message })
+      });
     }
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify(data)
-    };
-
-  } catch (error) {
-    console.error('Function error:', error);
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: error.message })
-    };
-  }
+  });
 };
