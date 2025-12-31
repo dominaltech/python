@@ -896,6 +896,193 @@
     color: var(--text-muted);
 }
 
+
+
+
+
+
+
+
+        /* AI Assistant Box Styles */
+        .ai-assistant-box {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .ai-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--accent-green);
+        }
+
+        .ai-status {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .ai-status.active {
+            color: var(--accent-green);
+        }
+
+        .ai-chat-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--tertiary-bg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .ai-message {
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .ai-message.user {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            margin-left: var(--spacing-xl);
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .ai-message.assistant {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--text-primary);
+            margin-right: var(--spacing-xl);
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .ai-message.error-msg {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--console-red);
+            border-left: 3px solid var(--console-red);
+        }
+
+        .ai-message strong {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            color: var(--accent-green);
+            font-size: 0.85rem;
+        }
+
+        .ai-input-area {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .ai-input {
+            flex: 1;
+            background: var(--tertiary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color var(--transition-fast);
+        }
+
+        .ai-input:focus {
+            border-color: var(--accent-green);
+        }
+
+        .ai-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn-ai-send {
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .btn-ai-send:hover:not(:disabled) {
+            background: var(--accent-green-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-ai-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .ai-quick-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .btn-quick-action {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-quick-action:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+            border-color: var(--accent-green);
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: var(--spacing-sm);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .ai-message.user {
+                margin-left: var(--spacing-sm);
+            }
+            
+            .ai-message.assistant {
+                margin-right: var(--spacing-sm);
+            }
+        }
     </style>
 </head>
 <body>
@@ -1060,6 +1247,54 @@ Ready to run Python code...
         <input type="text" id="console-input" class="console-input" placeholder="Enter input...">
     </div>
 </div>
+
+                <!-- NEW: AI ASSISTANT SECTION -->
+            <section class="ai-assistant-box">
+                <div class="ai-header">
+                    <h3>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 2a6 6 0 016 6c0 2.5-1.5 4.5-3.5 5.5v2.5a1 1 0 01-1 1h-3a1 1 0 01-1-1v-2.5C5.5 12.5 4 10.5 4 8a6 6 0 016-6zm0 2a4 4 0 00-4 4c0 1.5 1 3 2.5 3.5.5.2.5.5.5 1v2h2v-2c0-.5 0-.8.5-1C13 11 14 9.5 14 8a4 4 0 00-4-4z"/>
+                        </svg>
+                        Python AI Assistant
+                    </h3>
+                    <div class="ai-status" id="ai-status">
+                        <span class="status-dot"></span>
+                        Connecting...
+                    </div>
+                </div>
+
+                <div class="ai-quick-actions">
+                    <button class="btn-quick-action" onclick="askAI('Explain this code')">📖 Explain Code</button>
+                    <button class="btn-quick-action" onclick="askAI('Fix the error')">🔧 Fix Error</button>
+                    <button class="btn-quick-action" onclick="askAI('Optimize this code')">⚡ Optimize</button>
+                    <button class="btn-quick-action" onclick="askAI('Add comments')">💬 Add Comments</button>
+                </div>
+
+                <div class="ai-chat-container" id="ai-chat">
+                    <div class="ai-message assistant">
+                        <strong>AI Assistant 🤖</strong>
+                        Hello! I'm your Python coding assistant powered by Groq AI. I can help you understand errors, explain code, suggest fixes, and optimize your Python programs. Ask me anything!
+                    </div>
+                </div>
+
+                <div class="typing-indicator" id="typing-indicator">AI is thinking...</div>
+
+                <div class="ai-input-area">
+                    <input 
+                        type="text" 
+                        class="ai-input" 
+                        id="ai-input" 
+                        placeholder="Ask me about your Python code..."
+                        onkeypress="handleAIEnter(event)"
+                    >
+                    <button class="btn-ai-send" id="ai-send-btn" onclick="sendAIMessage()">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M15 8L1 1l4 7-4 7 14-7z"/>
+                        </svg>
+                        Send
+                    </button>
+                </div>
+            </section>
 
             </section>
 
@@ -1803,6 +2038,228 @@ async function runPythonCode() {
                     });
             });
         }
+
+
+        // ==========================================
+        // AI ASSISTANT FUNCTIONALITY
+        // ==========================================
+
+        let lastError = '';
+        let lastCode = '';
+
+        // Configuration - API key will be loaded from environment variable
+        const GROQ_API_KEY = window.ENV_GROQ_API_KEY || '';
+        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const GROQ_MODEL = 'llama-3.3-70b-versatile'; // Fastest and most capable model
+
+        // System prompt for the AI
+        const SYSTEM_PROMPT = `You are a Python coding assistant for pyBuddy, an online Python IDE built by Team Dominal (Yahya Mundewadi & Amir Rangrez) at www.dominal.in using AI from www.ai.dominal.in.
+
+Your role:
+- Help users understand Python errors in simple terms
+- Provide SHORT, CONCISE solutions (2-3 sentences max)
+- Explain code concepts clearly for beginners
+- Suggest fixes and optimizations
+- Always be encouraging and friendly
+
+Guidelines:
+- Keep responses under 150 words
+- Use simple language, avoid jargon
+- Provide code examples when helpful
+- Focus on the specific issue
+- Be practical and actionable
+
+IMPORTANT: Keep all responses very brief and to the point. No long explanations.`;
+
+        // Initialize AI status
+        function checkAIStatus() {
+            const aiStatus = document.getElementById('ai-status');
+            if (GROQ_API_KEY) {
+                aiStatus.innerHTML = '<span class="status-dot"></span> Ready';
+                aiStatus.classList.add('active');
+            } else {
+                aiStatus.innerHTML = '<span class="status-dot"></span> API Key Missing';
+                aiStatus.style.color = 'var(--console-yellow)';
+                addAIMessage('⚠️ Groq API key not configured. AI features limited.', 'assistant');
+            }
+        }
+
+        // Add message to AI chat
+        function addAIMessage(message, type = 'assistant') {
+            const chatContainer = document.getElementById('ai-chat');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `ai-message ${type}`;
+            
+            if (type === 'user') {
+                messageDiv.innerHTML = `<strong>You 👤</strong>${message}`;
+            } else if (type === 'error-msg') {
+                messageDiv.innerHTML = `<strong>Error ⚠️</strong>${message}`;
+            } else {
+                messageDiv.innerHTML = `<strong>AI Assistant 🤖</strong>${message}`;
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Show/hide typing indicator
+        function setTyping(isTyping) {
+            const indicator = document.getElementById('typing-indicator');
+            const sendBtn = document.getElementById('ai-send-btn');
+            
+            if (isTyping) {
+                indicator.classList.add('active');
+                sendBtn.disabled = true;
+            } else {
+                indicator.classList.remove('active');
+                sendBtn.disabled = false;
+            }
+        }
+
+        // Call Groq API via Netlify Function
+        async function callGroqAPI(userMessage, includeCode = false) {
+            try {
+                const messages = [
+                    { role: 'system', content: SYSTEM_PROMPT }
+                ];
+
+                // Include code context if requested
+                if (includeCode) {
+                    const code = codeEditor.value.trim();
+                    if (code) {
+                        messages.push({
+                            role: 'user',
+                            content: `Here's my Python code:\n\`\`\`python\n${code}\n\`\`\``
+                        });
+                    }
+                }
+
+                // Include last error if available
+                if (lastError) {
+                    messages.push({
+                        role: 'user',
+                        content: `Last error encountered:\n${lastError}`
+                    });
+                }
+
+                messages.push({ role: 'user', content: userMessage });
+
+                // Call Netlify serverless function
+                const response = await fetch('/.netlify/functions/groq-ai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        messages: messages,
+                        model: GROQ_MODEL,
+                        temperature: 0.3,
+                        max_tokens: 300
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.choices[0].message.content;
+
+            } catch (error) {
+                console.error('Groq API Error:', error);
+                throw error;
+            }
+        }
+
+        // Send AI message
+        async function sendAIMessage() {
+            const input = document.getElementById('ai-input');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Add user message
+            addAIMessage(message, 'user');
+            input.value = '';
+
+            // Show typing indicator
+            setTyping(true);
+
+            try {
+                // Determine if we should include code
+                const includeCode = message.toLowerCase().includes('code') || 
+                                   message.toLowerCase().includes('explain') ||
+                                   message.toLowerCase().includes('fix') ||
+                                   message.toLowerCase().includes('optimize');
+
+                const response = await callGroqAPI(message, includeCode);
+                addAIMessage(response, 'assistant');
+            } catch (error) {
+                addAIMessage(
+                    'Sorry, I encountered an error. Please check your API configuration or try again.',
+                    'error-msg'
+                );
+            } finally {
+                setTyping(false);
+            }
+        }
+
+        // Quick action handler
+        function askAI(action) {
+            const input = document.getElementById('ai-input');
+            input.value = action;
+            sendAIMessage();
+        }
+
+        // Handle Enter key in AI input
+        function handleAIEnter(event) {
+            if (event.key === 'Enter') {
+                sendAIMessage();
+            }
+        }
+
+        // Auto-suggest fixes for errors
+        async function autoSuggestFix(errorMessage) {
+            lastError = errorMessage;
+            
+            addAIMessage('I noticed an error. Let me analyze it...', 'assistant');
+            setTyping(true);
+
+            try {
+                const code = codeEditor.value.trim();
+                const response = await callGroqAPI(
+                    `Explain this Python error briefly and suggest a fix:\n${errorMessage}`,
+                    true
+                );
+                addAIMessage(response, 'assistant');
+            } catch (error) {
+                console.error('Auto-suggest error:', error);
+            } finally {
+                setTyping(false);
+            }
+        }
+
+        // Modified runPythonCode to capture errors for AI
+        const originalRunPythonCode = runPythonCode;
+        async function runPythonCode() {
+            lastError = '';
+            lastCode = codeEditor.value.trim();
+            
+            try {
+                await originalRunPythonCode();
+            } catch (error) {
+                lastError = error.message;
+                // Auto-suggest fix for error (optional - can be disabled)
+                // Uncomment the line below to enable auto-suggestions
+                // setTimeout(() => autoSuggestFix(error.message), 1000);
+            }
+        }
+
+        // Initialize AI on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAIStatus();
+        });
+
         
     </script>
 
