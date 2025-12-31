@@ -409,35 +409,37 @@
         }
 
         .line-numbers {
-            background: var(--card-bg);
-            color: var(--text-muted);
-            padding: var(--spacing-md);
-            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            user-select: none;
-            text-align: right;
-            min-width: 50px;
-            border-right: 1px solid var(--border-color);
-            overflow: hidden;
-        }
+    background: var(--card-bg);
+    color: var(--text-muted);
+    padding: var(--spacing-md);
+    font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;           /* ← MUST MATCH code-editor */
+    user-select: none;
+    text-align: right;
+    min-width: 50px;
+    border-right: 1px solid var(--border-color);
+    overflow: hidden;
+    white-space: pre;            /* ← ADD THIS */
+}
 
-        .code-editor {
-            flex: 1;
-            background: var(--tertiary-bg);
-            color: var(--text-primary);
-            border: none;
-            outline: none;
-            padding: var(--spacing-md);
-            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            resize: none;
-            min-height: 400px;
-            max-height: 600px;
-            overflow-y: auto;
-            tab-size: 4;
-        }
+.code-editor {
+    flex: 1;
+    background: var(--tertiary-bg);
+    color: var(--text-primary);
+    border: none;
+    outline: none;
+    padding: var(--spacing-md);
+    font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;           /* ← MUST MATCH line-numbers */
+    resize: none;
+    min-height: 400px;
+    max-height: 600px;
+    overflow-y: auto;
+    tab-size: 4;
+    white-space: pre;            /* ← ADD THIS */
+}
 
         .code-editor::placeholder {
             color: var(--text-muted);
@@ -1679,18 +1681,19 @@ function clearOutput() {
 // ==========================================
 
 function updateLineNumbers() {
-    const lines = codeEditor.value.split('\n').length;
-    const lineNumbersArray = [];
+    const lines = codeEditor.value.split('\n');
+    const lineCount = lines.length;
     
-    for (let i = 1; i <= lines; i++) {
-        lineNumbersArray.push(i);
+    // Create line numbers 1, 2, 3, etc.
+    let lineNumbersText = '';
+    for (let i = 1; i <= lineCount; i++) {
+        lineNumbersText += i + '\n';
     }
     
-    lineNumbers.textContent = lineNumbersArray.join('\n');
-    
-    // Ensure line numbers match editor height
-    lineNumbers.style.minHeight = codeEditor.scrollHeight + 'px';
+    // Remove last newline
+    lineNumbers.textContent = lineNumbersText.trim();
 }
+
 
 
 function updateCharCount() {
@@ -1949,15 +1952,17 @@ async function autoSuggestFix(errorMessage) {
 // ==========================================
 
 // Code Editor Events - Input handling
+// Update line numbers on every input
 codeEditor.addEventListener('input', () => {
     updateLineNumbers();
     updateCharCount();
 });
 
-// Code Editor Events - Scroll sync
+// Sync scroll between editor and line numbers
 codeEditor.addEventListener('scroll', () => {
     lineNumbers.scrollTop = codeEditor.scrollTop;
 });
+
 
 // Code Editor Events - Tab key support
 codeEditor.addEventListener('keydown', (e) => {
@@ -2062,6 +2067,7 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize Pyodide
     initPyodide();
+
     
     // Initialize line numbers and char count
     updateLineNumbers();
