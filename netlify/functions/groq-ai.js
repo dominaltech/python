@@ -14,7 +14,7 @@ exports.handler = async (event, context) => {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': Bearer ${process.env.AI_API_KEY},
+        'Authorization': Bearer ${process.env.GROQ_API_KEY},
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
     });
 
     if (!response.ok) {
-      throw new Error(AI API error: ${response.statusText});
+      throw new Error(GROQ API error: ${response.statusText});
     }
 
     const data = await response.json();
