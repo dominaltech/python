@@ -1370,54 +1370,56 @@ Ready to run Python code...
          JAVASCRIPT - pyBuddy
          Complete functionality for Python IDE
     ======================================== -->
-    <script>
-        // ==========================================
-        // GLOBAL VARIABLES & INITIALIZATION
-        // ==========================================
         
-        let pyodide = null;
-        let pyodideReady = false;
-        let deferredPrompt = null;
-        let autoSaveInterval = null;
-        
-        // DOM Elements
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const loadingStatus = document.getElementById('loading-status');
-        const codeEditor = document.getElementById('code-editor');
-        const lineNumbers = document.getElementById('line-numbers');
-        const outputConsole = document.getElementById('output-console');
-        const runBtn = document.getElementById('run-btn');
-        const runBtnText = document.getElementById('run-btn-text');
-        const clearBtn = document.getElementById('clear-btn');
-        const saveBtn = document.getElementById('save-btn');
-        const clearOutputBtn = document.getElementById('clear-output-btn');
-        const sampleBtn = document.getElementById('sample-btn');
-        const installBtn = document.getElementById('install-btn');
-        const samplesModal = document.getElementById('samples-modal');
-        const closeModal = document.getElementById('close-modal');
-        const charCount = document.getElementById('char-count');
-        const executionTime = document.getElementById('execution-time');
-        const pyodideStatus = document.getElementById('pyodide-status');
-        const pythonVersion = document.getElementById('python-version');
-        
-        // Sample Code Library
-        const sampleCodes = {
-            hello: `# Hello World Program
+                                 
+        <script>
+// ==========================================
+// GLOBAL VARIABLES & INITIALIZATION
+// ==========================================
+
+let pyodide = null;
+let pyodideReady = false;
+let deferredPrompt = null;
+let autoSaveInterval = null;
+let lastError = '';
+let lastCode = '';
+
+// DOM Elements
+const loadingOverlay = document.getElementById('loading-overlay');
+const loadingStatus = document.getElementById('loading-status');
+const codeEditor = document.getElementById('code-editor');
+const lineNumbers = document.getElementById('line-numbers');
+const outputConsole = document.getElementById('output-console');
+const runBtn = document.getElementById('run-btn');
+const runBtnText = document.getElementById('run-btn-text');
+const clearBtn = document.getElementById('clear-btn');
+const saveBtn = document.getElementById('save-btn');
+const clearOutputBtn = document.getElementById('clear-output-btn');
+const sampleBtn = document.getElementById('sample-btn');
+const samplesModal = document.getElementById('samples-modal');
+const closeModal = document.getElementById('close-modal');
+const charCount = document.getElementById('char-count');
+const executionTime = document.getElementById('execution-time');
+const pyodideStatus = document.getElementById('pyodide-status');
+const pythonVersion = document.getElementById('python-version');
+
+// Sample Code Library
+const sampleCodes = {
+    hello: `# Hello World Program
 print("Hello, World!")
 print("Welcome to Python programming!")`,
-            
-            calculator: `# Simple Calculator
+    
+    calculator: `# Simple Calculator
 a = 15
 b = 7
-
 print(f"Addition: {a} + {b} = {a + b}")
 print(f"Subtraction: {a} - {b} = {a - b}")
 print(f"Multiplication: {a} × {b} = {a * b}")
 print(f"Division: {a} ÷ {b} = {a / b:.2f}")
 print(f"Modulus: {a} % {b} = {a % b}")
 print(f"Power: {a} ^ {b} = {a ** b}")`,
-            
-            loop: `# For Loop Example
+    
+    loop: `# For Loop Example
 print("Counting from 1 to 10:")
 for i in range(1, 11):
     print(f"Number: {i}")
@@ -1426,44 +1428,37 @@ print("\\nEven numbers from 2 to 20:")
 for num in range(2, 21, 2):
     print(num, end=" ")
 print()`,
-            
-            list: `# Working with Lists
+    
+    list: `# Working with Lists
 fruits = ["apple", "banana", "cherry", "date", "elderberry"]
 
 print("Original list:", fruits)
 print(f"First fruit: {fruits[0]}")
 print(f"Last fruit: {fruits[-1]}")
 
-# Add a new fruit
 fruits.append("fig")
 print("After adding fig:", fruits)
 
-# List comprehension
 lengths = [len(fruit) for fruit in fruits]
 print("Lengths:", lengths)`,
-            
-            function: `# Function Examples
+    
+    function: `# Function Examples
 def greet(name):
-    """Greet someone by name"""
     return f"Hello, {name}! Welcome to pyBuddy!"
 
 def add_numbers(a, b):
-    """Add two numbers"""
     return a + b
 
 def is_even(num):
-    """Check if a number is even"""
     return num % 2 == 0
 
-# Call the functions
 print(greet("Python Learner"))
 print(f"5 + 3 = {add_numbers(5, 3)}")
 print(f"Is 10 even? {is_even(10)}")
 print(f"Is 7 even? {is_even(7)}")`,
-            
-            fibonacci: `# Fibonacci Sequence Generator
+    
+    fibonacci: `# Fibonacci Sequence Generator
 def fibonacci(n):
-    """Generate first n Fibonacci numbers"""
     fib_sequence = []
     a, b = 0, 1
     for _ in range(n):
@@ -1471,18 +1466,14 @@ def fibonacci(n):
         a, b = b, a + b
     return fib_sequence
 
-# Generate first 15 Fibonacci numbers
 n = 15
 result = fibonacci(n)
 print(f"First {n} Fibonacci numbers:")
 print(result)
-
-# Sum of Fibonacci numbers
 print(f"\\nSum: {sum(result)}")`,
-            
-            prime: `# Prime Number Checker
+    
+    prime: `# Prime Number Checker
 def is_prime(n):
-    """Check if a number is prime"""
     if n < 2:
         return False
     for i in range(2, int(n ** 0.5) + 1):
@@ -1490,778 +1481,505 @@ def is_prime(n):
             return False
     return True
 
-# Test numbers
-test_numbers = [2, 3, 4, 17, 20, 29, 30, 37, 100]
-
-print("Prime Number Check:")
-for num in test_numbers:
-    status = "Prime" if is_prime(num) else "Not Prime"
-    print(f"{num}: {status}")
-
-# Find primes in a range
-primes = [n for n in range(1, 50) if is_prime(n)]
-print(f"\\nPrime numbers between 1-50: {primes}")`,
-            
-            dictionary: `# Working with Dictionaries
+print("Prime numbers between 1 and 50:")
+primes = [num for num in range(1, 51) if is_prime(num)]
+print(primes)
+print(f"\\nTotal prime numbers: {len(primes)}")`,
+    
+    dictionary: `# Dictionary Example
 student = {
-    "name": "Alice Johnson",
+    "name": "Alice",
     "age": 20,
-    "major": "Computer Science",
-    "gpa": 3.85,
-    "courses": ["Python", "Data Structures", "Web Dev"]
+    "grade": "A",
+    "subjects": ["Math", "Physics", "Chemistry"]
 }
 
 print("Student Information:")
 for key, value in student.items():
-    print(f"{key.capitalize()}: {value}")
+    print(f"{key}: {value}")
 
-# Add a new field
-student["email"] = "alice@university.edu"
-print(f"\\nEmail added: {student['email']}")
+student["email"] = "alice@example.com"
+print("\\nAfter adding email:")
+print(student)`
+};
 
-# Dictionary methods
-print(f"\\nKeys: {list(student.keys())}")
-print(f"Number of fields: {len(student)}")
-`
-        };
-        
+// ==========================================
+// PYODIDE INITIALIZATION
+// ==========================================
 
-
-        // Add this CSS for the error GIF in your style section or stylesheet
-const style = document.createElement('style');
-style.textContent = `
-.error-gif {
-  max-width: 200px;
-  display: block;
-  margin: 1rem auto;
-}
-`;
-document.head.appendChild(style);
-
-// Helper function to render enhanced demo output for errors
-function renderDemoEnhancedOutput(text) {
-  // Clear previous output for clarity in error case
-  outputConsole.innerHTML = '';
-
-  if (text.includes('SyntaxError')) {
-    // Insert GIF instead of error text for SyntaxError
-    const img = document.createElement('img');
-    img.src = 'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif';
-    img.className = 'error-gif';
-    outputConsole.appendChild(img);
-  } else if (text.includes('TypeError')) {
-    // Play beep audio for TypeError
-    const audio = new Audio('https://www.soundjay.com/buttons/sounds/beep-01a.mp3');
-    audio.play().catch(() => { /* Autoplay might be blocked, ignore error */ });
-    
-    // Show error text as usual (or clear if you want silent beep only)
-    const errorSpan = document.createElement('span');
-    errorSpan.textContent = text;
-    errorSpan.className = 'error';
-    outputConsole.appendChild(errorSpan);
-  } else {
-    // Default: append text normally with newline
-    const span = document.createElement('span');
-    span.textContent = text + '\n';
-    outputConsole.appendChild(span);
-  }
-
-  outputConsole.scrollTop = outputConsole.scrollHeight;
-}
-
-        // ==========================================
-        // PYODIDE INITIALIZATION
-        // ==========================================
-        
-        async function initPyodide() {
+async function initPyodide() {
     try {
-        loadingStatus.textContent = "Loading runtime...";
-        
-        // Load Pyodide
+        loadingStatus.textContent = 'Loading Python runtime...';
         pyodide = await loadPyodide({
-            indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.0/full/"
+            indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.0/full/'
         });
         
-        loadingStatus.textContent = "Setting up Python environment...";
-        
-        // Configure stdout/stderr
-        pyodide.setStdout({
-            batched: (msg) => {
-                appendOutput(msg, 'success');
-            }
-        });
-        
-        pyodide.setStderr({
-            batched: (msg) => {
-                appendOutput(msg, 'error');
-            }
-        });
-        
-        loadingStatus.textContent = "Configuring input system...";
-        
-        // WORKING FIX: Inject input handler into pyodide.globals.js
-        const inputHandler = async (prompt_text) => {
-            const inputArea = document.getElementById('input-area');
-            const consoleInput = document.getElementById('console-input');
-            
-            if (prompt_text) {
-                appendOutput(prompt_text, 'info');
-            }
-            
-            return new Promise((resolve) => {
-                inputArea.style.display = 'flex';
-                consoleInput.value = '';
-                consoleInput.focus();
-                
-                const handleInput = (e) => {
-                    if (e.key === 'Enter') {
-                        const value = consoleInput.value;
-                        appendOutput(value, 'info');
-                        inputArea.style.display = 'none';
-                        consoleInput.removeEventListener('keypress', handleInput);
-                        resolve(value);
-                    }
-                };
-                
-                consoleInput.addEventListener('keypress', handleInput);
-            });
-        };
-        
-        // Make it globally available to Python
-        window.pyodideInputHandler = inputHandler;
-        
-        // Override Python's input() function
-        await pyodide.runPythonAsync(`
-from js import pyodideInputHandler
-import asyncio
-
-# Create synchronous wrapper for input
-def input(prompt=""):
-    # Convert JS Promise to Python awaitable and run it
-    loop = asyncio.get_event_loop()
-    task = asyncio.ensure_future(pyodideInputHandler(prompt))
-    return loop.run_until_complete(task)
-
-# Override built-in
-__builtins__.input = input
-        `);
-        
-        // Get Python version
-        const version = pyodide.runPython(`
-import sys
-sys.version.split()[0]
-        `);
-        
-        pythonVersion.textContent = `Python ${version}`;
-        loadingStatus.textContent = "Python is ready!";
+        loadingStatus.textContent = 'Python loaded successfully!';
         pyodideReady = true;
         
-        // Update status indicator
-        pyodideStatus.classList.add('ready');
+        // Update UI
         pyodideStatus.innerHTML = '<span class="status-dot"></span> Ready';
+        pyodideStatus.classList.add('ready');
+        pythonVersion.textContent = `Python ${pyodide.version}`;
         
         // Hide loading overlay
         setTimeout(() => {
             loadingOverlay.classList.add('hidden');
         }, 500);
         
-        // Initial console message
-        outputConsole.innerHTML = '';
-        appendOutput('🐍 Python is ready! Write your code and click "Run Code"', 'info');
-        appendOutput('Powered by Python ', 'info');
-        appendOutput('✅ Input function ready!', 'success');
+        // Load saved code
+        loadSavedCode();
+        
+        // Setup auto-save
+        setupAutoSave();
+        
+        console.log('Pyodide initialized successfully');
         
     } catch (error) {
-        console.error('Python initialization error:', error);
-        loadingStatus.textContent = "Error loading Python";
-        appendOutput(`❌ Failed to load Python: ${error.message}`, 'error');
-        loadingOverlay.classList.add('hidden');
+        loadingStatus.textContent = 'Failed to load Python runtime';
+        console.error('Pyodide initialization error:', error);
+        appendOutput('Error: Failed to load Python runtime\n' + error.message, 'error');
     }
 }
 
+// ==========================================
+// CODE EXECUTION
+// ==========================================
 
-// Simple async wrapper and input() conversion preprocessor
-
-
-        
-        // ==========================================
-        // CODE EXECUTION
-        // ==========================================
-        
-        // Preprocessor function to wrap user code in async and await input()
-
-      
-     function preprocessUserCode(code) {
-  // Detect if code contains 'input(' and no async/await usage
-  const usesInput = /\binput\s*\(/.test(code);
-  const usesAwait = /\bawait\b/.test(code);
-  const usesAsyncDef = /\basync\s+def\b/.test(code);
-
-  if (usesInput && !usesAwait && !usesAsyncDef) {
-    // Wrap code inside async function and replace input() with await input()
-    let wrappedCode = 'async def __pybuddy_main():\n';
-    // Indent original code 4 spaces
-    const indentedCode = code.split('\n').map(line => '    ' + line).join('\n');
-    wrappedCode += indentedCode + '\n\nawait __pybuddy_main()';
-    // Replace all input( with await input(
-    wrappedCode = wrappedCode.replace(/\binput\s*\(/g, 'await input(');
-    return wrappedCode;
-  }
-  // No changes needed
-  return code;
-     }
- 
 async function runPythonCode() {
-  if (!pyodideReady) {
-    appendOutput('⚠️  Python is still loading. Please wait...', 'warning');
-    return;
-  }
-  
-  let code = codeEditor.value.trim();
-
-  if (!code) {
-    appendOutput('⚠️  No code to run. Please write some Python code first.', 'warning');
-    return;
-  }
-
-  // Clear output
-  outputConsole.innerHTML = '';
-  appendOutput('🚀 Running your code...\n', 'info');
-
-  // Disable run button
-  runBtn.disabled = true;
-  runBtnText.textContent = 'Running...';
-
-  // Preprocess user code to add async if needed
-  code = preprocessUserCode(code);
-
-  const startTime = performance.now();
-
-  try {
-    await pyodide.loadPackagesFromImports(code);
-    await pyodide.runPythonAsync(code);
-
-    const endTime = performance.now();
-    const duration = ((endTime - startTime) / 1000).toFixed(3);
-
-    appendOutput(`\n✅ Execution completed in ${duration}s`, 'success');
-    executionTime.textContent = `Executed in ${duration}s`;
-
-  } catch (error) {
-    const endTime = performance.now();
-    const duration = ((endTime - startTime) / 1000).toFixed(3);
-
-    appendOutput('\n❌ Error occurred:', 'error');
-    appendOutput(error.message, 'error');
-
-    // TODO: Connect pyDecode here to translate errors into simple English
-    appendOutput('\n💡 Tip: Check your syntax and indentation', 'warning');
-
-    executionTime.textContent = `Failed after ${duration}s`;
-    outputConsole.classList.add('shake');
-    setTimeout(() => outputConsole.classList.remove('shake'), 500);
-  } finally {
-    runBtn.disabled = false;
-    runBtnText.textContent = 'Run Code';
-  }
-}
-
-        // ==========================================
-        // OUTPUT CONSOLE MANAGEMENT
-        // ==========================================
-        
-        function appendOutput(text, type = 'normal') {
-            const line = document.createElement('span');
-            line.textContent = text + '\n';
-            
-            switch (type) {
-                case 'error':
-                    line.className = 'error';
-                    break;
-                case 'warning':
-                    line.className = 'warning';
-                    break;
-                case 'info':
-                    line.className = 'info';
-                    break;
-                case 'success':
-                    line.className = 'success';
-                    break;
-            }
-            
-            outputConsole.appendChild(line);
-            outputConsole.scrollTop = outputConsole.scrollHeight;
-        }
-        
-        function clearOutput() {
-            outputConsole.innerHTML = '';
-            appendOutput('Console cleared.', 'info');
-            executionTime.textContent = '';
-        }
-        
-        // ==========================================
-        // CODE EDITOR MANAGEMENT
-        // ==========================================
-        
-        function updateLineNumbers() {
-    const lines = codeEditor.value.split('\n');
-    const lineCount = lines.length;
-    
-    // Create line numbers with <br> tags for proper display
-    let lineNumbersHTML = '';
-    for (let i = 1; i <= lineCount; i++) {
-        lineNumbersHTML += i + '<br>';
+    if (!pyodideReady) {
+        appendOutput('⚠️ Python is still loading. Please wait...', 'warning');
+        return;
     }
     
-    // Remove last <br> to avoid extra line
-    lineNumbers.innerHTML = lineNumbersHTML.slice(0, -4);
+    const code = codeEditor.value.trim();
+    if (!code) {
+        appendOutput('⚠️ Please write some code first!', 'warning');
+        return;
+    }
     
-    // Update character count
-    const charCountNum = codeEditor.value.length;
-    charCount.textContent = `${charCountNum} character${charCountNum !== 1 ? 's' : ''}`;
+    // Update button state
+    runBtn.disabled = true;
+    runBtnText.textContent = 'Running...';
+    
+    // Clear previous output
+    outputConsole.textContent = '';
+    lastError = '';
+    lastCode = code;
+    
+    const startTime = performance.now();
+    
+    try {
+        // Redirect stdout to capture print statements
+        pyodide.runPython(`
+import sys
+from io import StringIO
+sys.stdout = StringIO()
+sys.stderr = StringIO()
+        `);
+        
+        // Run user code
+        pyodide.runPython(code);
+        
+        // Get output
+        const stdout = pyodide.runPython('sys.stdout.getvalue()');
+        const stderr = pyodide.runPython('sys.stderr.getvalue()');
+        
+        const endTime = performance.now();
+        const execTime = ((endTime - startTime) / 1000).toFixed(3);
+        
+        // Display output
+        if (stdout) {
+            appendOutput(stdout, 'success');
+        }
+        if (stderr) {
+            appendOutput(stderr, 'warning');
+        }
+        if (!stdout && !stderr) {
+            appendOutput('✓ Code executed successfully (no output)', 'info');
+        }
+        
+        // Show execution time
+        executionTime.textContent = `⚡ Executed in ${execTime}s`;
+        
+    } catch (error) {
+        const endTime = performance.now();
+        const execTime = ((endTime - startTime) / 1000).toFixed(3);
+        
+        lastError = error.message;
+        appendOutput(`❌ Error:\n${error.message}`, 'error');
+        executionTime.textContent = `⚠️ Failed in ${execTime}s`;
+        
+        // Optional: Auto-suggest fix (uncomment to enable)
+        // setTimeout(() => autoSuggestFix(error.message), 1000);
+        
+    } finally {
+        // Reset button
+        runBtn.disabled = false;
+        runBtnText.textContent = 'Run Code';
+    }
 }
 
-        
-        function handleTab(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const start = codeEditor.selectionStart;
-                const end = codeEditor.selectionEnd;
-                const value = codeEditor.value;
-                
-                codeEditor.value = value.substring(0, start) + '    ' + value.substring(end);
-                codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
-                updateLineNumbers();
-            }
-        }
-        
-        function clearEditor() {
-            if (codeEditor.value.trim() === '') {
-                return;
-            }
-            
-            if (confirm('Are you sure you want to clear the editor?')) {
-                codeEditor.value = '';
-                updateLineNumbers();
-                appendOutput('Editor cleared.', 'info');
-            }
-        }
-        
-        // ==========================================
-        // LOCAL STORAGE MANAGEMENT
-        // ==========================================
-        
-        function saveCode() {
-            try {
-                localStorage.setItem('pybuddy-code', codeEditor.value);
-                localStorage.setItem('pybuddy-save-time', new Date().toISOString());
-                
-                // Show save feedback
-                const originalText = saveBtn.innerHTML;
-                saveBtn.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
-                    </svg>
-                    Saved!
-                `;
-                
-                setTimeout(() => {
-                    saveBtn.innerHTML = originalText;
-                }, 1500);
-                
-            } catch (error) {
-                console.error('Save error:', error);
-                appendOutput('⚠️  Could not save code to local storage', 'warning');
-            }
-        }
-        
-        function loadCode() {
-            try {
-                const savedCode = localStorage.getItem('pybuddy-code');
-                if (savedCode) {
-                    codeEditor.value = savedCode;
-                    updateLineNumbers();
-                    
-                    const saveTime = localStorage.getItem('pybuddy-save-time');
-                    if (saveTime) {
-                        const date = new Date(saveTime);
-                        appendOutput(`📂 Loaded code from ${date.toLocaleString()}`, 'info');
-                    }
-                }
-            } catch (error) {
-                console.error('Load error:', error);
-            }
-        }
-        
-        function autoSave() {
-            if (codeEditor.value.trim()) {
-                localStorage.setItem('pybuddy-code', codeEditor.value);
-            }
-        }
-        
-        // ==========================================
-        // SAMPLE CODE MANAGEMENT
-        // ==========================================
-        
-        function openSamplesModal() {
-            samplesModal.classList.add('active');
-        }
-        
-        function closeSamplesModal() {
-            samplesModal.classList.remove('active');
-        }
-        
-        function loadSample(sampleKey) {
-            if (sampleCodes[sampleKey]) {
-                codeEditor.value = sampleCodes[sampleKey];
-                updateLineNumbers();
-                closeSamplesModal();
-                appendOutput(`📋 Loaded sample: ${sampleKey}`, 'info');
-            }
-        }
-        
-        // ==========================================
-        // PWA INSTALLATION
-        // ==========================================
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.style.display = 'inline-flex';
-        });
-        
-        async function installApp() {
-            if (!deferredPrompt) {
-                return;
-            }
-            
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            
-            if (outcome === 'accepted') {
-                console.log('PWA installed');
-                installBtn.style.display = 'none';
-            }
-            
-            deferredPrompt = null;
-        }
-        
-        // ==========================================
-        // EVENT LISTENERS
-        // ==========================================
-        
-        // Editor events
-        codeEditor.addEventListener('input', updateLineNumbers);
-        codeEditor.addEventListener('keydown', handleTab);
-        codeEditor.addEventListener('scroll', () => {
-            lineNumbers.scrollTop = codeEditor.scrollTop;
-        });
-        
-        // Button events
-        runBtn.addEventListener('click', runPythonCode);
-        clearBtn.addEventListener('click', clearEditor);
-        saveBtn.addEventListener('click', saveCode);
-        clearOutputBtn.addEventListener('click', clearOutput);
-        sampleBtn.addEventListener('click', openSamplesModal);
-        closeModal.addEventListener('click', closeSamplesModal);
-        installBtn.addEventListener('click', installApp);
-        
-        // Enter key to run code (Ctrl+Enter or Cmd+Enter)
-        codeEditor.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                runPythonCode();
-            }
-        });
-        
-        // Sample card events
-        document.querySelectorAll('.sample-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const sampleKey = card.getAttribute('data-sample');
-                loadSample(sampleKey);
-            });
-        });
-        
-        // Modal close on outside click
-        samplesModal.addEventListener('click', (e) => {
-            if (e.target === samplesModal) {
-                closeSamplesModal();
-            }
-        });
-        
-        // Escape key to close modal
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && samplesModal.classList.contains('active')) {
-                closeSamplesModal();
-            }
-        });
-        
-        // Auto-save every 5 seconds
-        autoSaveInterval = setInterval(autoSave, 5000);
-        
-        // Save before page unload
-        window.addEventListener('beforeunload', (e) => {
-            autoSave();
-        });
-        
-        // ==========================================
-        // INITIALIZATION ON PAGE LOAD
-        // ==========================================
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize line numbers
+// ==========================================
+// OUTPUT MANAGEMENT
+// ==========================================
+
+function appendOutput(text, type = 'success') {
+    const span = document.createElement('span');
+    span.className = type;
+    span.textContent = text + '\n';
+    outputConsole.appendChild(span);
+    outputConsole.scrollTop = outputConsole.scrollHeight;
+}
+
+function clearOutput() {
+    outputConsole.textContent = 'pyBuddy Console v1.0\n\nReady to run Python code...\n';
+    executionTime.textContent = '';
+}
+
+// ==========================================
+// CODE EDITOR FUNCTIONS
+// ==========================================
+
+function updateLineNumbers() {
+    const lines = codeEditor.value.split('\n').length;
+    lineNumbers.textContent = Array.from({length: lines}, (_, i) => i + 1).join('\n');
+}
+
+function updateCharCount() {
+    const count = codeEditor.value.length;
+    charCount.textContent = `${count} characters`;
+}
+
+function clearEditor() {
+    if (codeEditor.value.trim() && !confirm('Clear all code? This cannot be undone.')) {
+        return;
+    }
+    codeEditor.value = '';
+    updateLineNumbers();
+    updateCharCount();
+    saveCode();
+}
+
+function saveCode() {
+    try {
+        localStorage.setItem('pybuddy_code', codeEditor.value);
+        showToast('💾 Code saved!');
+    } catch (error) {
+        console.error('Save error:', error);
+        showToast('❌ Failed to save code');
+    }
+}
+
+function loadSavedCode() {
+    try {
+        const saved = localStorage.getItem('pybuddy_code');
+        if (saved) {
+            codeEditor.value = saved;
             updateLineNumbers();
-            
-            // Load saved code
-            loadCode();
-            
-            // Initialize Pyodide
-            initPyodide();
-            
-            console.log('pyBuddy initialized - Created by Yahya Mundewadi');
+            updateCharCount();
+        }
+    } catch (error) {
+        console.error('Load error:', error);
+    }
+}
+
+function setupAutoSave() {
+    autoSaveInterval = setInterval(() => {
+        if (codeEditor.value.trim()) {
+            localStorage.setItem('pybuddy_code', codeEditor.value);
+        }
+    }, 30000); // Auto-save every 30 seconds
+}
+
+function showToast(message) {
+    // Simple toast notification
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--card-bg);
+        color: var(--text-primary);
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-green);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
+}
+
+// ==========================================
+// SAMPLE CODE MODAL
+// ==========================================
+
+function openSamplesModal() {
+    samplesModal.classList.add('active');
+}
+
+function closeSamplesModal() {
+    samplesModal.classList.remove('active');
+}
+
+function loadSample(sampleName) {
+    if (sampleCodes[sampleName]) {
+        codeEditor.value = sampleCodes[sampleName];
+        updateLineNumbers();
+        updateCharCount();
+        closeSamplesModal();
+        showToast('📝 Sample loaded!');
+    }
+}
+
+// ==========================================
+// AI ASSISTANT FUNCTIONS
+// ==========================================
+
+function checkAIStatus() {
+    const aiStatus = document.getElementById('ai-status');
+    if (aiStatus) {
+        // Try a test call
+        fetch('/.netlify/functions/groq-ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                messages: [{ role: 'user', content: 'test' }],
+                model: 'llama-3.3-70b-versatile'
+            })
+        })
+        .then(res => res.ok ? res.json() : Promise.reject())
+        .then(data => {
+            if (data.choices) {
+                aiStatus.innerHTML = '<span class="status-dot"></span> Ready';
+                aiStatus.classList.add('ready');
+            }
+        })
+        .catch(() => {
+            aiStatus.innerHTML = '<span class="status-dot"></span> API Key Missing';
+            aiStatus.classList.add('error');
         });
+    }
+}
+
+function addAIMessage(message, type = 'assistant') {
+    const chatContainer = document.getElementById('ai-chat');
+    if (!chatContainer) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `ai-message ${type}`;
+    
+    if (type === 'user') {
+        messageDiv.innerHTML = `<strong>You 👤</strong>${message}`;
+    } else {
+        messageDiv.innerHTML = `<strong>AI Assistant 🤖</strong>${message}`;
+    }
+    
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+async function sendAIMessage() {
+    const input = document.getElementById('ai-input');
+    const sendBtn = document.getElementById('ai-send-btn');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    addAIMessage(message, 'user');
+    input.value = '';
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Thinking...';
+    
+    try {
+        const includeCode = message.toLowerCase().includes('code') || 
+                           message.toLowerCase().includes('explain') ||
+                           message.toLowerCase().includes('fix');
         
-        // ==========================================
-        // SERVICE WORKER REGISTRATION (PWA)
-        // ==========================================
+        const messages = [
+            {
+                role: 'system',
+                content: `You are a Python coding assistant for pyBuddy IDE built by Team Dominal (Yahya Mundewadi & Amir Rangrez). Keep responses under 150 words. Be concise, friendly, and beginner-focused.`
+            }
+        ];
         
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // Note: Service worker file must be created separately
-                // This is a placeholder for PWA functionality
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registered:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration failed:', error);
-                    });
+        if (includeCode && codeEditor.value.trim()) {
+            messages.push({
+                role: 'user',
+                content: `Here's my Python code:\n\`\`\`python\n${codeEditor.value.trim()}\n\`\`\``
             });
         }
-
-
-        // ==========================================
-        // AI ASSISTANT FUNCTIONALITY
-        // ==========================================
-
-        let lastError = '';
-        let lastCode = '';
-
-        // Configuration - API key will be loaded from environment variable
-        const GROQ_API_KEY = window.ENV_GROQ_API_KEY || '';
-        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-        const GROQ_MODEL = 'llama-3.3-70b-versatile'; // Fastest and most capable model
-
-        // System prompt for the AI
-        const SYSTEM_PROMPT = `You are a Python coding assistant for pyBuddy, an online Python IDE built by Team Dominal (Yahya Mundewadi & Amir Rangrez) at www.dominal.in using AI from www.ai.dominal.in.
-
-Your role:
-- Help users understand Python errors in simple terms
-- Provide SHORT, CONCISE solutions (2-3 sentences max)
-- Explain code concepts clearly for beginners
-- Suggest fixes and optimizations
-- Always be encouraging and friendly
-
-Guidelines:
-- Keep responses under 150 words
-- Use simple language, avoid jargon
-- Provide code examples when helpful
-- Focus on the specific issue
-- Be practical and actionable
-
-IMPORTANT: Keep all responses very brief and to the point. No long explanations.`;
-
-        // Initialize AI status
-        function checkAIStatus() {
-            const aiStatus = document.getElementById('ai-status');
-            if (GROQ_API_KEY) {
-                aiStatus.innerHTML = '<span class="status-dot"></span> Ready';
-                aiStatus.classList.add('active');
-            } else {
-                aiStatus.innerHTML = '<span class="status-dot"></span> API Key Missing';
-                aiStatus.style.color = 'var(--console-yellow)';
-                addAIMessage('⚠️ Groq API key not configured. AI features limited.', 'assistant');
-            }
-        }
-
-        // Add message to AI chat
-        function addAIMessage(message, type = 'assistant') {
-            const chatContainer = document.getElementById('ai-chat');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `ai-message ${type}`;
-            
-            if (type === 'user') {
-                messageDiv.innerHTML = `<strong>You 👤</strong>${message}`;
-            } else if (type === 'error-msg') {
-                messageDiv.innerHTML = `<strong>Error ⚠️</strong>${message}`;
-            } else {
-                messageDiv.innerHTML = `<strong>AI Assistant 🤖</strong>${message}`;
-            }
-            
-            chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        // Show/hide typing indicator
-        function setTyping(isTyping) {
-            const indicator = document.getElementById('typing-indicator');
-            const sendBtn = document.getElementById('ai-send-btn');
-            
-            if (isTyping) {
-                indicator.classList.add('active');
-                sendBtn.disabled = true;
-            } else {
-                indicator.classList.remove('active');
-                sendBtn.disabled = false;
-            }
-        }
-
-        // Call Groq API via Netlify Function
-        async function callGroqAPI(userMessage, includeCode = false) {
-            try {
-                const messages = [
-                    { role: 'system', content: SYSTEM_PROMPT }
-                ];
-
-                // Include code context if requested
-                if (includeCode) {
-                    const code = codeEditor.value.trim();
-                    if (code) {
-                        messages.push({
-                            role: 'user',
-                            content: `Here's my Python code:\n\`\`\`python\n${code}\n\`\`\``
-                        });
-                    }
-                }
-
-                // Include last error if available
-                if (lastError) {
-                    messages.push({
-                        role: 'user',
-                        content: `Last error encountered:\n${lastError}`
-                    });
-                }
-
-                messages.push({ role: 'user', content: userMessage });
-
-                // Call Netlify serverless function
-                const response = await fetch('/.netlify/functions/groq-ai', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        messages: messages,
-                        model: GROQ_MODEL,
-                        temperature: 0.3,
-                        max_tokens: 300
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status}`);
-                }
-
-                const data = await response.json();
-                return data.choices[0].message.content;
-
-            } catch (error) {
-                console.error('Groq API Error:', error);
-                throw error;
-            }
-        }
-
-        // Send AI message
-        async function sendAIMessage() {
-            const input = document.getElementById('ai-input');
-            const message = input.value.trim();
-
-            if (!message) return;
-
-            // Add user message
-            addAIMessage(message, 'user');
-            input.value = '';
-
-            // Show typing indicator
-            setTyping(true);
-
-            try {
-                // Determine if we should include code
-                const includeCode = message.toLowerCase().includes('code') || 
-                                   message.toLowerCase().includes('explain') ||
-                                   message.toLowerCase().includes('fix') ||
-                                   message.toLowerCase().includes('optimize');
-
-                const response = await callGroqAPI(message, includeCode);
-                addAIMessage(response, 'assistant');
-            } catch (error) {
-                addAIMessage(
-                    'Sorry, I encountered an error. Please check your API configuration or try again.',
-                    'error-msg'
-                );
-            } finally {
-                setTyping(false);
-            }
-        }
-
-        // Quick action handler
-        function askAI(action) {
-            const input = document.getElementById('ai-input');
-            input.value = action;
-            sendAIMessage();
-        }
-
-        // Handle Enter key in AI input
-        function handleAIEnter(event) {
-            if (event.key === 'Enter') {
-                sendAIMessage();
-            }
-        }
-
-        // Auto-suggest fixes for errors
-        async function autoSuggestFix(errorMessage) {
-            lastError = errorMessage;
-            
-            addAIMessage('I noticed an error. Let me analyze it...', 'assistant');
-            setTyping(true);
-
-            try {
-                const code = codeEditor.value.trim();
-                const response = await callGroqAPI(
-                    `Explain this Python error briefly and suggest a fix:\n${errorMessage}`,
-                    true
-                );
-                addAIMessage(response, 'assistant');
-            } catch (error) {
-                console.error('Auto-suggest error:', error);
-            } finally {
-                setTyping(false);
-            }
-        }
-
-        // Modified runPythonCode to capture errors for AI
-        const originalRunPythonCode = runPythonCode;
-        async function runPythonCode() {
-            lastError = '';
-            lastCode = codeEditor.value.trim();
-            
-            try {
-                await originalRunPythonCode();
-            } catch (error) {
-                lastError = error.message;
-                // Auto-suggest fix for error (optional - can be disabled)
-                // Uncomment the line below to enable auto-suggestions
-                // setTimeout(() => autoSuggestFix(error.message), 1000);
-            }
-        }
-
-        // Initialize AI on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            checkAIStatus();
-        });
-
         
-    </script>
+        if (lastError) {
+            messages.push({
+                role: 'user',
+                content: `Last error: ${lastError}`
+            });
+        }
+        
+        messages.push({ role: 'user', content: message });
+        
+        const response = await fetch('/.netlify/functions/groq-ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                messages: messages,
+                model: 'llama-3.3-70b-versatile',
+                temperature: 0.3,
+                max_tokens: 300
+            })
+        });
+        
+        if (!response.ok) throw new Error('AI request failed');
+        
+        const data = await response.json();
+        addAIMessage(data.choices[0].message.content, 'assistant');
+        
+    } catch (error) {
+        addAIMessage('Sorry, AI is temporarily unavailable. Please check your API configuration.', 'assistant');
+        console.error('AI Error:', error);
+    } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send';
+    }
+}
+
+function askAI(question) {
+    const input = document.getElementById('ai-input');
+    if (input) {
+        input.value = question;
+        sendAIMessage();
+    }
+}
+
+function handleAIEnter(event) {
+    if (event.key === 'Enter') {
+        sendAIMessage();
+    }
+}
+
+async function autoSuggestFix(errorMessage) {
+    lastError = errorMessage;
+    addAIMessage('I noticed an error. Analyzing...', 'assistant');
+    
+    try {
+        const response = await fetch('/.netlify/functions/groq-ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a Python error explainer. Explain errors briefly and suggest fixes in 2-3 sentences.'
+                    },
+                    {
+                        role: 'user',
+                        content: `Explain this Python error and suggest a fix:\n${errorMessage}\n\nCode:\n${codeEditor.value.trim()}`
+                    }
+                ],
+                model: 'llama-3.3-70b-versatile',
+                temperature: 0.3,
+                max_tokens: 200
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            addAIMessage(data.choices[0].message.content, 'assistant');
+        }
+    } catch (error) {
+        console.error('Auto-suggest error:', error);
+    }
+}
+
+// ==========================================
+// EVENT LISTENERS
+// ==========================================
+
+// Code Editor Events
+codeEditor.addEventListener('input', () => {
+    updateLineNumbers();
+    updateCharCount();
+});
+
+codeEditor.addEventListener('scroll', () => {
+    lineNumbers.scrollTop = codeEditor.scrollTop;
+});
+
+codeEditor.addEventListener('keydown', (e) => {
+    // Tab key support
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = codeEditor.selectionStart;
+        const end = codeEditor.selectionEnd;
+        codeEditor.value = codeEditor.value.substring(0, start) + '    ' + codeEditor.value.substring(end);
+        codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
+        updateLineNumbers();
+        updateCharCount();
+    }
+});
+
+// Button Events
+runBtn.addEventListener('click', runPythonCode);
+clearBtn.addEventListener('click', clearEditor);
+saveBtn.addEventListener('click', saveCode);
+clearOutputBtn.addEventListener('click', clearOutput);
+sampleBtn.addEventListener('click', openSamplesModal);
+closeModal.addEventListener('click', closeSamplesModal);
+
+// Sample Cards
+document.querySelectorAll('.sample-card').forEach(card => {
+    card.addEventListener('click', () => {
+        const sample = card.getAttribute('data-sample');
+        loadSample(sample);
+    });
+});
+
+// Close modal on outside click
+samplesModal.addEventListener('click', (e) => {
+    if (e.target === samplesModal) {
+        closeSamplesModal();
+    }
+});
+
+// ==========================================
+// INITIALIZATION
+// ==========================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Pyodide
+    initPyodide();
+    
+    // Initialize line numbers and char count
+    updateLineNumbers();
+    updateCharCount();
+    
+    // Check AI status
+    checkAIStatus();
+    
+    // Add welcome message to AI chat
+    const welcomeMsg = document.querySelector('.ai-message.assistant');
+    if (!welcomeMsg) {
+        addAIMessage('Hello! I\'m your Python AI assistant. I can help explain code, fix errors, and optimize your programs. Ask me anything!', 'assistant');
+    }
+});
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    if (autoSaveInterval) {
+        clearInterval(autoSaveInterval);
+    }
+});
+
+console.log('pyBuddy initialized - Built by Team Dominal (Yahya Mundewadi & Amir Rangrez)');
+console.log('Visit: www.dominal.in | www.ai.dominal.in');
+</script>
+
 
 </body>
     </html>
