@@ -1,1 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pyBuddy - AI-Powered Python IDE</title>
+    <meta name="description" content="pyBuddy - AI-powered Python IDE with intelligent code assistance. Run Python instantly in your browser with 200+ libraries and smart error detection.">
+    <meta name="keywords" content="python IDE, AI python, online python compiler, pyodide, learn python, python AI assistant">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        :root {
+            --primary-green: #00dc82;
+            --dark-green: rgba(0, 220, 130, 0.1);
+            --bg-black: #000000;
+            --bg-dark: #0a0a0a;
+            --bg-card: #0f0f0f;
+            --text-white: #ffffff;
+            --text-gray: #a0a0a0;
+            --border-green: rgba(0, 220, 130, 0.2);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-black);
+            color: var(--text-white);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated Background Grid */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--bg-black);
+        }
+
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(var(--border-green) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-green) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: moveGrid 40s linear infinite;
+            opacity: 0.15;
+        }
+
+        @keyframes moveGrid {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        /* Header */
+        header {
+            padding: 4rem 1.5rem 3rem;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            background: linear-gradient(135deg, var(--primary-green), #00f593);
+            color: #000000;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-white);
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-white);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* AI Features Highlight */
+        .ai-features {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin: 2rem 0 3rem;
+        }
+
+        .ai-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.5rem;
+            background: var(--dark-green);
+            border: 1px solid var(--border-green);
+            border-radius: 25px;
+            font-size: 0.95rem;
+            color: var(--text-white);
+        }
+
+        .ai-feature-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Main Action Cards */
+        .action-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            max-width: 900px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .action-card {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-dark));
+            padding: 3rem 2.5rem;
+            border: 2px solid var(--border-green);
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 220, 130, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .action-card:hover::before {
+            left: 100%;
+        }
+
+        .action-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-green);
+            box-shadow: 0 15px 40px rgba(0, 220, 130, 0.3);
+        }
+
+        .action-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .action-title {
+            font-size: 1.8rem;
+            color: var(--primary-green);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .action-description {
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .action-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            background: var(--primary-green);
+            color: #000000;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .action-button:hover {
+            background: #00f593;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 220, 130, 0.4);
+        }
+
+        .action-button.secondary {
+            background: transparent;
+            border: 2px solid var(--primary-green);
+            color: var(--primary-green);
+        }
+
+        .action-button.secondary:hover {
+            background: var(--dark-green);
+            border-color: #00f593;
+        }
+
+        /* Stats Section */
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin: 4rem 0;
+            padding: 0 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Section */
+        .section {
+            padding: 3rem 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border: 1px solid var(--border-green);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-green);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-green);
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            color: var(--text-white);
+            font-weight: 600;
+        }
+
+        .feature-desc {
+            color: var(--text-gray);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        /* About Section */
+        .about-card {
+            background: var(--bg-card);
+            padding: 2.5rem;
+            border: 1px solid var(--border-green);
+            border-radius: 8px;
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .company-name {
+            font-size: 1.8rem;
+            color: var(--primary-green);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .founder-info {
+            margin-bottom: 1.5rem;
+        }
+
+        .founder-name {
+            font-size: 1.2rem;
+            color: var(--text-white);
+            margin-bottom: 0.3rem;
+        }
+
+        .founder-title {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+
+        .about-desc {
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.8rem 1.5rem;
+            background: transparent;
+            border: 1px solid var(--border-green);
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--text-white);
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .contact-link:hover {
+            background: var(--dark-green);
+            border-color: var(--primary-green);
+            transform: translateY(-2px);
+        }
+
+        .contact-icon {
+            font-size: 1.2rem;
+            color: var(--primary-green);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            color: var(--text-gray);
+            border-top: 1px solid var(--border-green);
+            margin-top: 4rem;
+            font-size: 0.9rem;
+        }
+
+        footer p {
+            margin: 0.4rem 0;
+        }
+
+        .footer-links {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--text-gray);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-green);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .tagline {
+                font-size: 0.95rem;
+            }
+
+            .action-cards {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                margin: 2rem auto;
+            }
+
+            .action-card {
+                padding: 2.5rem 2rem;
+            }
+
+            .action-icon {
+                font-size: 3.5rem;
+            }
+
+            .action-title {
+                font-size: 1.5rem;
+            }
+
+            .ai-features {
+                gap: 1rem;
+            }
+
+            .stats-container {
+                gap: 2rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 2.5rem 1.2rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.2rem;
+            }
+
+            .feature-card {
+                padding: 1.5rem;
+            }
+
+            .contact-links {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+
+            .about-card {
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .feature-icon {
+                font-size: 1.8rem;
+            }
+
+            .feature-title {
+                font-size: 1rem;
+            }
+
+            .feature-desc {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+
+    <!-- Header -->
+    <header>
+        <span class="ai-badge">🤖 AI-Powered</span>
+        <h1 class="logo">pyBuddy</h1>
+        <p class="hero-subtitle">Next-Generation Python IDE with Intelligent AI Assistant</p>
+        <p class="tagline">Write, Run & Learn Python with Smart Code Assistance</p>
+        
+        <div class="ai-features">
+            <div class="ai-feature-item">
+                <span class="ai-feature-icon">⚡</span>
+                <span>Instant Execution</span>
+            </div>
+            <div class="ai-feature-item">
+                <span class="ai-feature-icon">🤖</span>
+                <span>AI Code Helper</span>
+            </div>
+            <div class="ai-feature-item">
+                <span class="ai-feature-icon">🔧</span>
+                <span>Auto Error Fix</span>
+            </div>
+            <div class="ai-feature-item">
+                <span class="ai-feature-icon">📚</span>
+                <span>200+ Libraries</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Action Cards -->
+    <section class="action-cards">
+        <div class="action-card">
+            <span class="action-icon">💻</span>
+            <h2 class="action-title">Launch IDE</h2>
+            <p class="action-description">
+                Start coding instantly with our AI-powered Python compiler. Get smart suggestions, 
+                auto-fix errors, and code explanations in real-time.
+            </p>
+            <a href="compiler.html" class="action-button">Open Compiler</a>
+        </div>
+
+        <div class="action-card">
+            <span class="action-icon">📖</span>
+            <h2 class="action-title">Learn Python</h2>
+            <p class="action-description">
+                Complete Python course from basics to advanced with interactive lessons, 
+                practice programs, and real-world projects.
+            </p>
+            <a href="python.html" class="action-button secondary">Start Learning</a>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-container">
+        <div class="stat-item">
+            <span class="stat-number">200+</span>
+            <span class="stat-label">Python Libraries</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">0ms</span>
+            <span class="stat-label">Server Delay</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">AI</span>
+            <span class="stat-label">Code Assistant</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Browser-Based</span>
+        </div>
+    </section>
+
+    <!-- AI Features Section -->
+    <section class="section">
+        <h2 class="section-title">AI-Powered Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3 class="feature-title">Smart AI Assistant</h3>
+                <p class="feature-desc">Get instant help with code explanations, error fixes, and optimization suggestions powered by Groq AI.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3 class="feature-title">Auto Error Detection</h3>
+                <p class="feature-desc">AI automatically detects errors and provides clear explanations with suggested fixes in simple language.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💡</div>
+                <h3 class="feature-title">Code Optimization</h3>
+                <p class="feature-desc">Get AI-powered suggestions to improve your code performance, readability, and best practices.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <h3 class="feature-title">Instant Explanations</h3>
+                <p class="feature-desc">Ask AI to explain any Python concept or code snippet in beginner-friendly terms.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Real-Time Execution</h3>
+                <p class="feature-desc">Run Python code instantly in your browser with zero server delays using Pyodide engine.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3 class="feature-title">Universal Access</h3>
+                <p class="feature-desc">Code on any device - desktop, laptop, tablet, or mobile. Fully responsive and PWA-enabled.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Features Section -->
+    <section class="section">
+        <h2 class="section-title">Core IDE Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📦</div>
+                <h3 class="feature-title">200+ Libraries</h3>
+                <p class="feature-desc">NumPy, Pandas, Matplotlib, SciPy, scikit-learn, and 200+ pre-configured libraries ready to use.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💾</div>
+                <h3 class="feature-title">Auto-Save</h3>
+                <p class="feature-desc">Your code is automatically saved locally. Never lose your work - resume exactly where you left off.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Professional UI</h3>
+                <p class="feature-desc">Clean interface with syntax highlighting, line numbers, and intelligent code formatting.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⏱</div>
+                <h3 class="feature-title">Performance Metrics</h3>
+                <p class="feature-desc">Real-time execution timing and performance analytics for code optimization.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3 class="feature-title">Sample Programs</h3>
+                <p class="feature-desc">Pre-loaded examples covering basics to advanced topics for quick learning and reference.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3 class="feature-title">100% Secure</h3>
+                <p class="feature-desc">All code runs locally in your browser. No server uploads, complete privacy guaranteed.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section">
+        <h2 class="section-title">About pyBuddy</h2>
+        <div class="about-card">
+            <div class="company-name">🚀 Team Dominal</div>
+            <div class="founder-info">
+                <div class="founder-name">Yahya Mundewadi & Amir Rangrez</div>
+                <div class="founder-title">Founders & Developers</div>
+            </div>
+            <p class="about-desc">
+                Building next-generation educational technology solutions for developers and students worldwide. 
+                Empowering learning through innovative AI-powered tools and accessible programming environments.
+                pyBuddy combines cutting-edge AI with powerful browser-based Python execution to create the 
+                ultimate learning and development platform.
+            </p>
+            <p class="about-desc">
+                <strong>Powered by:</strong> Groq AI · Pyodide · Netlify<br>
+                <strong>Platforms:</strong> <a href="https://www.dominal.in" style="color: var(--primary-green);">www.dominal.in</a> · 
+                <a href="https://www.ai.dominal.in" style="color: var(--primary-green);">www.ai.dominal.in</a>
+            </p>
+            <div class="contact-links">
+                <a href="tel:+919307426215" class="contact-link">
+                    <span class="contact-icon">📞</span>
+                    <span>Call Us</span>
+                </a>
+                <a href="https://wa.me/919307426215" class="contact-link" target="_blank">
+                    <span class="contact-icon">💬</span>
+                    <span>WhatsApp</span>
+                </a>
+                <a href="mailto:mdyahyamundewadi@gmail.com" class="contact-link">
+                    <span class="contact-icon">✉</span>
+                    <span>Email</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 pyBuddy - AI-Powered Python IDE</p>
+        <p>Built by <strong>Team Dominal</strong> (Yahya Mundewadi & Amir Rangrez)</p>
+        <div class="footer-links">
+            <a href="https://www.dominal.in" class="footer-link" target="_blank">Dominal.in</a>
+            <span style="color: var(--border-green);">|</span>
+            <a href="https://www.ai.dominal.in" class="footer-link" target="_blank">AI.Dominal.in</a>
+            <span style="color: var(--border-green);">|</span>
+            <a href="compiler.html" class="footer-link">IDE</a>
+            <span style="color: var(--border-green);">|</span>
+            <a href="python.html" class="footer-link">Learn</a>
+        </div>
+    </footer>
+
+    <script>
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Add entrance animations on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all feature cards and action cards
+        document.querySelectorAll('.feature-card, .action-card, .stat-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+
+        // Add click tracking (optional - for analytics)
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                console.log('User clicked:', action);
+                // Add your analytics code here
+            });
+        });
+    </script>
+</body>
+</html>
