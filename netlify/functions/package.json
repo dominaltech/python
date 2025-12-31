@@ -1,0 +1,8 @@
+{
+  "name": "pybuddy-functions",
+  "version": "1.0.0",
+  "description": "Netlify Functions for pyBuddy AI",
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
